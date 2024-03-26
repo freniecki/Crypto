@@ -1,5 +1,9 @@
 package org.example;
 
+import java.util.Arrays;
+
+import static java.lang.System.arraycopy;
+
 public class Main {
 
     private byte[] key;
@@ -17,7 +21,7 @@ public class Main {
         byte[] oneDimension = new byte[columnLength * rowLength]; // create 1D to return
 
         for (int i = 0; i < columnLength; i++) {
-            System.arraycopy(twoDimension[i], 0, oneDimension, i * rowLength, rowLength);
+            arraycopy(twoDimension[i], 0, oneDimension, i * rowLength, rowLength);
         }
         return oneDimension;
     }
@@ -26,18 +30,20 @@ public class Main {
         byte[][] twoDimension = new byte[col][row];
 
         for (int i = 0; i < col; i++) {
-            System.arraycopy(oneDimension, i * row, twoDimension[i], 0, row);
+            arraycopy(oneDimension, i * row, twoDimension[i], 0, row);
         }
 
         return twoDimension;
     }
 
-    void expansionPermutation(byte[] rightHalf) {
+    byte[] expansionPermutation(byte[] rightHalf) {
         byte[][] expandedDraft = new byte[8][6];
 
         // places 1:1 right half of text
         for (int i = 0; i < 8; i++) {
-            System.arraycopy(rightHalf, i * 8, expandedDraft[i], 1, 4);
+            for (int j = 0; j < 4; j++) {
+                expandedDraft[i][j + 1] = rightHalf[i * 4 + j];
+            }
         }
 
         // fill 1st column with 4th column, but with moved by one numbers
@@ -52,12 +58,12 @@ public class Main {
         }
         expandedDraft[7][5] = expandedDraft[0][1];
 
-
+        return changeToOneDimension(expandedDraft);
     }
 
 
+
     /*
-    expansion
     substitution
     transposition
     xor_inner
