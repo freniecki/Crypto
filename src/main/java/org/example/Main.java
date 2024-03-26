@@ -36,6 +36,11 @@ public class Main {
         return twoDimension;
     }
 
+    /**
+     * Create expanded right half of text.
+     * @param rightHalf 32 bits of text
+     * @return 48 bits of expanded text
+     */
     byte[] expansionPermutation(byte[] rightHalf) {
         byte[][] expandedDraft = new byte[8][6];
 
@@ -61,14 +66,10 @@ public class Main {
         return changeToOneDimension(expandedDraft);
     }
 
-
-
-    /*
-    substitution
-    transposition
-    xor_inner
-    xor_outer
-
-     */
+    // todo: CREATE Mangler Function:
+    // todo: create XOR on Expanded and Key
+    // todo: create S-boxes
+    // todo: create 8to6 boxes
+    // todo: create transposition-box
 
 }
