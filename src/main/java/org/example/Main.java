@@ -14,6 +14,13 @@ public class Main {
 
     }
 
+    public final byte[][] s1matrix = {
+            {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7},
+            {0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8},
+            {4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0},
+            {15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13}
+    };
+
     byte[] changeToOneDimension(byte[][] twoDimension) {
         int columnLength = twoDimension.length; // evaluate [x][]
         int rowLength = twoDimension[0].length; // evaluate [][x]
@@ -69,6 +76,7 @@ public class Main {
 
     /**
      * Performs XOR on expanded key and round key
+     *
      * @param expanded bits from previous half of the text
      * @param roundKey bits of round key specific for given round
      * @return Xor'ed key in 48 bits
@@ -85,7 +93,6 @@ public class Main {
     }
 
     /**
-     *
      * @param innerXor
      * @return
      */
@@ -99,7 +106,7 @@ public class Main {
                 sBoxEight[j] = innerXor[i * 8 + j];
             }
 
-            sBoxSix = sBox(sBoxEight);
+            sBoxSix = sBox(sBoxEight, innerXor, s1matrix);
 
             for (int j = 0; j < 6; j++) {
                 substitutedKey[i * 8 + j] = sBoxSix[j];
@@ -109,18 +116,24 @@ public class Main {
         return substitutedKey;
     }
 
-    byte[] sBox(byte[] sBox) {
-
-
-
+    byte[] sBox(byte[] sBox, byte[] innerXor, byte[][] sMatrix) {
         String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
-        int columnIndex = Integer.parseInt(stringColumn,2);
+        int columnIndex = Integer.parseInt(stringColumn, 2);
 
         String stringRow = String.valueOf(sBox[1]) + String.valueOf(sBox[2])
                 + String.valueOf(sBox[3]) + String.valueOf(sBox[4]);
-        int rowIndex = Integer.parseInt(stringColumn,2);
+        int rowIndex = Integer.parseInt(stringRow, 2);
 
 
+        byte[][] innerXor2D = changeToTwoDimension(innerXor, 4, 8);
+
+        String binaryString = Integer.toBinaryString(innerXor2D[columnIndex][rowIndex]);
+
+        byte[] sBoxSix = new byte[6];
+
+        for (int i = 0; i < 6; i++) {
+            sBoxSix[i] = (byte) binaryString.charAt(i);
+        }
 
         return sBox;
     }
