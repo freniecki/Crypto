@@ -84,7 +84,15 @@ class MainTest {
     }
 
     @Test
-    void keySubstitution() {
+    void changeToArray() {
+        Main main = new Main();
+        byte[] expected = {0,1,1,0};
+        byte[] actual = main.changeToArray(6);
+
+        System.out.println(Arrays.toString(expected));
+        System.out.println(Arrays.toString(actual));
+
+        Assertions.assertArrayEquals(expected, actual);
     }
 
     @Test
@@ -102,14 +110,29 @@ class MainTest {
                 1, 0, 0, 1, 0, 1, 0, 1
         };
 
-        byte[][] afterXor48bits = {
-                {0,0,0,0,0,0,0,0},
-                {1,1,1,1,1,1,1,1},
-                {0,0,0,0,0,0,0,0},
-                {1,1,1,1,1,1,1,1}
+
+
+    }
+
+    @Test
+    void keySubstitution() {
+        Main main = new Main();
+
+        byte[] afterXor48bits = {
+                0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1
         };
 
-        main.sBox(afterXor48bits, );
+        byte[] returnKey = {
+                1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0,
+                1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
+        };
+
+        Assertions.assertArrayEquals(returnKey, main.keySubstitution(afterXor48bits));
     }
 
     @Test

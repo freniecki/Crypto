@@ -92,28 +92,20 @@ public class Main {
         return innerXor;
     }
 
-    /**
-     * @param innerXor
-     * @return
-     */
-    byte[] keySubstitution(byte[] innerXor) {
-        byte[] sBoxEight = new byte[8];
-        byte[] sBoxSix = new byte[6];
-        byte[] substitutedKey = new byte[32];
+    byte[] changeToArray(int decimal) {
+        String binaryString = Integer.toBinaryString(decimal);
 
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                sBoxEight[j] = innerXor[i * 8 + j];
-            }
-
-            sBoxSix = sBox(sBoxEight, innerXor, s1matrix);
-
-            for (int j = 0; j < 6; j++) {
-                substitutedKey[i * 8 + j] = sBoxSix[j];
-            }
+        while (binaryString.length() < 4) {
+            binaryString = "0" + binaryString;
         }
 
-        return substitutedKey;
+        byte[] sBoxBin = new byte[4];
+
+        for (int i = 0; i < 4; i++) {
+            sBoxBin[i] = (byte) (binaryString.charAt(i) - '0');
+        }
+
+        return sBoxBin;
     }
 
     byte[] sBox(byte[] sBox, byte[] innerXor, byte[][] sMatrix) {
@@ -124,18 +116,35 @@ public class Main {
                 + String.valueOf(sBox[3]) + String.valueOf(sBox[4]);
         int rowIndex = Integer.parseInt(stringRow, 2);
 
-
         byte[][] innerXor2D = changeToTwoDimension(innerXor, 4, 8);
 
-        String binaryString = Integer.toBinaryString(innerXor2D[columnIndex][rowIndex]);
+        return changeToArray(innerXor2D[columnIndex][rowIndex]);
+    }
 
-        byte[] sBoxSix = new byte[6];
+    /**
+     * @param innerXor
+     * @return
+     */
+    byte[] keySubstitution(byte[] innerXor) {
+        // dostaje klucz 48 bitowy -> zwraca 32 bitowy
+
+        byte[] sBoxSix = new byte[8];
+        byte[] sBoxFour;
+        byte[] substituteKey = new byte[32];
 
         for (int i = 0; i < 6; i++) {
-            sBoxSix[i] = (byte) binaryString.charAt(i);
+            for (int j = 0; j < 8; j++) {
+                sBoxSix[j] = innerXor[i * 6 + j];
+            }
+
+            sBoxFour = sBox(sBoxSix, innerXor, s1matrix);
+
+            for (int j = 0; j < 6; j++) {
+                substituteKey[i * 6 + j] = sBoxFour[j];
+            }
         }
 
-        return sBox;
+        return substituteKey;
     }
 
     byte[] permutationBox(byte[] substitutedKey) {
