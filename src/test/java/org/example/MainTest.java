@@ -80,7 +80,7 @@ class MainTest {
         key[0] = 1;
         key[1] = 1;
 
-        System.out.println(Arrays.toString(main.expandedXorRoundKey(exp, key, 48)));
+        System.out.println(Arrays.toString(main.expandedXorRoundKey(exp, key)));
     }
 
     @Test

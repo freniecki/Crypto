@@ -67,10 +67,16 @@ public class Main {
         return changeToOneDimension(expandedDraft);
     }
 
-    byte[] expandedXorRoundKey(byte[] expanded, byte[] roundKey, int size) {
-        byte[] innerXor = new byte[size];
+    /**
+     * Performs XOR on expanded key and round key
+     * @param expanded bits from previous half of the text
+     * @param roundKey bits of round key specific for given round
+     * @return Xor'ed key in 48 bits
+     */
+    byte[] expandedXorRoundKey(byte[] expanded, byte[] roundKey) {
+        byte[] innerXor = new byte[48];
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < 48; i++) {
             innerXor[i] = (byte) (expanded[i] + roundKey[i]);
             innerXor[i] %= 2;
         }
@@ -78,6 +84,11 @@ public class Main {
         return innerXor;
     }
 
+    /**
+     *
+     * @param innerXor
+     * @return
+     */
     byte[] keySubstitution(byte[] innerXor) {
         byte[] sBoxEight = new byte[8];
         byte[] sBoxSix = new byte[6];
