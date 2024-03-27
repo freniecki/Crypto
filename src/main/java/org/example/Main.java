@@ -38,6 +38,7 @@ public class Main {
 
     /**
      * Create expanded right half of text.
+     *
      * @param rightHalf 32 bits of text
      * @return 48 bits of expanded text
      */
@@ -66,8 +67,57 @@ public class Main {
         return changeToOneDimension(expandedDraft);
     }
 
+    byte[] expandedXorRoundKey(byte[] expanded, byte[] roundKey, int size) {
+        byte[] innerXor = new byte[size];
+
+        for (int i = 0; i < size; i++) {
+            innerXor[i] = (byte) (expanded[i] + roundKey[i]);
+            innerXor[i] %= 2;
+        }
+
+        return innerXor;
+    }
+
+    byte[] keySubstitution(byte[] innerXor) {
+        byte[] sBoxEight = new byte[8];
+        byte[] sBoxSix = new byte[6];
+        byte[] substitutedKey = new byte[32];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                sBoxEight[j] = innerXor[i * 8 + j];
+            }
+
+            sBoxSix = sBox(sBoxEight);
+
+            for (int j = 0; j < 6; j++) {
+                substitutedKey[i * 8 + j] = sBoxSix[j];
+            }
+        }
+
+        return substitutedKey;
+    }
+
+    byte[] sBox(byte[] sBox) {
+
+
+
+        String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
+        int columnIndex = Integer.parseInt(stringColumn,2);
+
+        String stringRow = String.valueOf(sBox[1]) + String.valueOf(sBox[2])
+                + String.valueOf(sBox[3]) + String.valueOf(sBox[4]);
+        int rowIndex = Integer.parseInt(stringColumn,2);
+
+
+
+        return sBox;
+    }
+
+    byte[] permutationBox(byte[] substitutedKey) {
+        return substitutedKey;
+    }
     // todo: CREATE Mangler Function:
-    // todo: create XOR on Expanded and Key
     // todo: create S-boxes
     // todo: create 8to6 boxes
     // todo: create transposition-box

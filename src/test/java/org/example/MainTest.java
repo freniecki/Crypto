@@ -69,4 +69,34 @@ class MainTest {
 
         Assertions.assertArrayEquals(expanded, main.expansionPermutation(rightHalf));
     }
+
+    @Test
+    void expandedXorRoundKey() {
+        Main main = new Main();
+        byte[] exp = new byte[48];
+        byte[] key = new byte[48];
+        exp[0] = 0;
+        exp[1] = 1;
+        key[0] = 1;
+        key[1] = 1;
+
+        System.out.println(Arrays.toString(main.expandedXorRoundKey(exp, key, 48)));
+    }
+
+    @Test
+    void keySubstitution() {
+    }
+
+    @Test
+    void sBox() {
+        byte[] sBox = {1,0,0,1,0,1};
+        String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
+        System.out.println(stringColumn);
+        int columnIndex = Integer.parseInt(stringColumn,2);
+        System.out.println(columnIndex);
+    }
+
+    @Test
+    void permutationBox() {
+    }
 }
