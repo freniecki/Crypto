@@ -99,6 +99,17 @@ public class Main {
         return innerXor;
     }
 
+    byte[] xorOperation(byte[] param1, byte[] param2) {
+        int array_size = param1.length;
+        byte[] returnValue = new byte[array_size];
+
+        for (int i = 0; i < 48; i++) {
+            returnValue[i] = (byte) (param1[i] + param2[i]);
+            returnValue[i] %= 2;
+        }
+        return returnValue;
+    }
+
     byte[] changeToArray(int decimal) {
         String binaryString = Integer.toBinaryString(decimal);
 
@@ -115,13 +126,6 @@ public class Main {
         return sBoxBin;
     }
 
-    /**
-     * Gets the bits version of
-     * @param sBox
-     * @param innerXor
-     * @param sMatrix
-     * @return
-     */
     byte[] sBox(byte[] sBox, byte[] innerXor, byte[][] sMatrix) {
         String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
         int columnIndex = Integer.parseInt(stringColumn, 2);
@@ -136,10 +140,6 @@ public class Main {
         return changeToArray(innerXor2D[columnIndex][rowIndex]);
     }
 
-    /**
-     * @param innerXor
-     * @return
-     */
     byte[] keySubstitution(byte[] innerXor) {
         // dostaje klucz 48 bitowy -> zwraca 32 bitowy
 
@@ -172,16 +172,12 @@ public class Main {
         return permutatedKey;
     }
 
-//    byte[] manglerFunction(byte[] rightHalf, byte[] leftHalf) {
-//        byte[] newRightHalf;
-//
-//
-//        return newRightHalf[];
-//    }
+    byte[] manglerFunction(byte[] rightHalf, byte[] leftHalf, byte[] roundKey) {
+        byte[] newRightHalf = permutationBox(keySubstitution(expandedXorRoundKey(expansionPermutation(rightHalf), roundKey)));
 
-    // todo: CREATE Mangler Function:
-    // todo: create S-boxes
-    // todo: create 8to6 boxes
-    // todo: create transposition-box
+        newRightHalf = xorOperation(newRightHalf, leftHalf);
+
+        return newRightHalf;
+    }
 
 }
