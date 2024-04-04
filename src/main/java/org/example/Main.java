@@ -21,6 +21,13 @@ public class Main {
             {15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13}
     };
 
+    private final byte[][] permutationFunctionMatrix = {
+            {16, 7, 20, 21, 29, 12, 28, 17},
+            {1, 15, 23, 26, 5, 18, 31, 10},
+            {2, 8, 24, 14, 32, 27, 3, 9},
+            {19, 13, 30, 6, 22, 11, 4, 25}
+    };
+
     byte[] changeToOneDimension(byte[][] twoDimension) {
         int columnLength = twoDimension.length; // evaluate [x][]
         int rowLength = twoDimension[0].length; // evaluate [][x]
@@ -108,12 +115,20 @@ public class Main {
         return sBoxBin;
     }
 
+    /**
+     * Gets the bits version of
+     * @param sBox
+     * @param innerXor
+     * @param sMatrix
+     * @return
+     */
     byte[] sBox(byte[] sBox, byte[] innerXor, byte[][] sMatrix) {
         String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
         int columnIndex = Integer.parseInt(stringColumn, 2);
 
         String stringRow = String.valueOf(sBox[1]) + String.valueOf(sBox[2])
                 + String.valueOf(sBox[3]) + String.valueOf(sBox[4]);
+
         int rowIndex = Integer.parseInt(stringRow, 2);
 
         byte[][] innerXor2D = changeToTwoDimension(innerXor, 4, 8);
@@ -132,15 +147,15 @@ public class Main {
         byte[] sBoxFour;
         byte[] substituteKey = new byte[32];
 
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 6; j++) {
                 sBoxSix[j] = innerXor[i * 6 + j];
             }
 
             sBoxFour = sBox(sBoxSix, innerXor, s1matrix);
 
-            for (int j = 0; j < 6; j++) {
-                substituteKey[i * 6 + j] = sBoxFour[j];
+            for (int j = 0; j < 4; j++) {
+                substituteKey[i * 4 + j] = sBoxFour[j];
             }
         }
 
@@ -148,8 +163,22 @@ public class Main {
     }
 
     byte[] permutationBox(byte[] substitutedKey) {
-        return substitutedKey;
+        byte[] permutatedKey = new byte[32];
+
+        for (int i = 0; i < 32; i++) {
+            int index = permutationFunctionMatrix[i / 4][i % 4];
+            permutatedKey[i] = substitutedKey[index];
+        }
+        return permutatedKey;
     }
+
+//    byte[] manglerFunction(byte[] rightHalf, byte[] leftHalf) {
+//        byte[] newRightHalf;
+//
+//
+//        return newRightHalf[];
+//    }
+
     // todo: CREATE Mangler Function:
     // todo: create S-boxes
     // todo: create 8to6 boxes
