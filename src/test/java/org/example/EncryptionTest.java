@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-class MainTest {
+class EncryptionTest {
 
     @Test
     void changeToOneDimension() {
-        Main main = new Main();
+        Encryption main = new Encryption();
 
         byte[][] twoDim = {
                 {1, 2, 3, 4, 5, 6, 7, 8},
@@ -30,7 +30,7 @@ class MainTest {
 
     @Test
     void changeToTwoDimension() {
-        Main main = new Main();
+        Encryption main = new Encryption();
 
         byte[] oneDim = {
                 1, 2, 3, 4, 5, 6, 7, 8,
@@ -51,7 +51,7 @@ class MainTest {
 
     @Test
     void expansionPermutation() {
-        Main main = new Main();
+        Encryption main = new Encryption();
 
         byte[] rightHalf = {
                 1, 2, 3, 4, 5, 6, 7, 8,
@@ -72,7 +72,7 @@ class MainTest {
 
     @Test
     void expandedXorRoundKey() {
-        Main main = new Main();
+        Encryption main = new Encryption();
         byte[] exp = new byte[48];
         byte[] key = new byte[48];
         exp[0] = 0;
@@ -80,12 +80,12 @@ class MainTest {
         key[0] = 1;
         key[1] = 1;
 
-        System.out.println(Arrays.toString(main.expandedXorRoundKey(exp, key)));
+        System.out.println(Arrays.toString(main.xorOperation(exp, key)));
     }
 
     @Test
     void changeToArray() {
-        Main main = new Main();
+        Encryption main = new Encryption();
         byte[] expected = {0,1,1,0};
         byte[] actual = main.changeToArray(6);
 
@@ -97,7 +97,7 @@ class MainTest {
 
     @Test
     void sBox() {
-        Main main = new Main();
+        Encryption main = new Encryption();
         byte[] sBox = {1, 0, 0, 1, 0, 1};
         String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
         System.out.println(stringColumn);
@@ -106,17 +106,28 @@ class MainTest {
 
         //----------------------
 
-        byte[] sBox8 = {
-                1, 0, 0, 1, 0, 1, 0, 1
+        byte[] sBox6 = {
+                1, 0, 0, 1, 0, 1
         };
 
+        //col - 4 // row - 2
 
+        byte[] innerXor = {
+                1, 2, 3, 4, 5, 6, 7, 8,
+                9, 10, 11, 12, 13, 14, 15, 16,
+                17, 18, 19, 20, 21, 22, 23, 24,
+                25, 26, 27, 28, 29, 30, 31, 32
+        };
+
+        byte[] sBox4 = {
+                1,1,1,1
+        };
 
     }
 
     @Test
     void keySubstitution() {
-        Main main = new Main();
+        Encryption main = new Encryption();
 
         byte[] afterXor48bits = {
                 0, 0, 0, 0, 0, 0, 0, 0,
