@@ -98,17 +98,15 @@ class EncryptionTest {
     @Test
     void sBox() {
         Encryption main = new Encryption();
-        byte[] sBox = {1, 0, 0, 1, 0, 1};
-        String stringColumn = String.valueOf(sBox[0]) + String.valueOf(sBox[5]);
-        System.out.println(stringColumn);
-        int columnIndex = Integer.parseInt(stringColumn, 2);
-        System.out.println(columnIndex);
-
-        //----------------------
 
         byte[] sBox6 = {
                 1, 0, 0, 1, 0, 1
         };
+
+        byte[] sBox6v2 = {
+                1, 0, 0, 1, 1, 1
+        };
+
 
         //col - 4 // row - 2
 
@@ -116,13 +114,23 @@ class EncryptionTest {
                 1, 2, 3, 4, 5, 6, 7, 8,
                 9, 10, 11, 12, 13, 14, 15, 16,
                 17, 18, 19, 20, 21, 22, 23, 24,
-                25, 26, 27, 28, 29, 30, 31, 32
+                25, 26, 7, 5, 29, 30, 31, 32
         };
 
         byte[] sBox4 = {
                 1,1,1,1
         };
 
+        byte[] sBox4v2 = {
+                0,1,1,1
+        };
+
+        Assertions.assertArrayEquals(sBox4, main.sBox(sBox6, innerXor));
+
+        System.out.println(Arrays.toString(sBox4v2));
+        System.out.println(Arrays.toString(main.sBox(sBox6v2, innerXor)));
+
+        Assertions.assertArrayEquals(sBox4v2, main.sBox(sBox6v2, innerXor));
     }
 
     @Test
