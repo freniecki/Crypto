@@ -160,19 +160,20 @@ class EncryptionTest {
     }
 
     @Test
-    void testKeyGenEveryRound() {
+    void testKeyGenEveryRound() {       //tu powinien być testFail
         Encryption main = new Encryption();
-        byte[] key = {0, 0, 0, 0, 0, 0, 0, 0,
-                1, 1, 1, 1, 1, 1, 1, 1,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                1, 1, 1, 1, 1, 1, 1, 1,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                1, 1, 1, 1, 1, 1, 1, 1,
-                0, 0, 0, 0, 1, 1, 1, 1};
-        byte oldKey[] = main.getEffectiveKey(key);
-        for(int i = 0; i < 17; i++) {
-            main.thisRoundKey(key, i);
+        byte[] key = {0, 1, 0, 1, 0, 1, 0, 0,
+                1, 1, 1, 0, 1, 1, 0, 1,
+                0, 0, 0, 1, 0, 0, 1, 0,
+                1, 0, 0, 1, 1, 1, 1, 1,
+                0, 0, 0, 1, 1, 1, 0, 0,
+                1, 1, 1, 0, 1, 0, 1, 1};
+        byte[] oldKey = key.clone();
+
+        for(int i = 0; i < 16; i++) {
+            key = main.thisRoundKey(key, i);
         }
+
         Assertions.assertArrayEquals(key, oldKey);
     }
 }

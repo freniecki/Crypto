@@ -171,11 +171,12 @@ public class Encryption {
     byte[] thisRoundKey(byte[] roundKey, int roundNum) {
         if(roundNum < 16){
             byte tmp = roundKey[47];
-            for (int i = (roundKey.length)-1; i > 1; i--){
+            for (int i = (roundKey.length)-1; i >= 1; i--){
                 roundKey[i] = roundKey[i-1];
             }
             roundKey[0] = tmp;
         }
+
         return roundKey;
     }
 }
