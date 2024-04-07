@@ -152,6 +152,7 @@ public class Encryption {
 
         newRightHalf = xorOperation(newRightHalf, leftHalf);
 
+
         return newRightHalf;
     }
 
@@ -161,9 +162,20 @@ public class Encryption {
         byte[] effectiveKey = new byte[56];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 7; j++) {
-                effectiveKey[i * 7 + j] = key[i * 8 + j];
+                effectiveKey[i * 7 + j] = key[i * 8 + j]; //wywala OutOfBounds
             }
         }
         return effectiveKey;
+    }
+
+    byte[] thisRoundKey(byte[] roundKey, int roundNum) {
+        if(roundNum < 16){
+            byte tmp = roundKey[47];
+            for (int i = (roundKey.length)-1; i > 1; i--){
+                roundKey[i] = roundKey[i-1];
+            }
+            roundKey[0] = tmp;
+        }
+        return roundKey;
     }
 }

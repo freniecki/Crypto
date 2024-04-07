@@ -151,10 +151,28 @@ class EncryptionTest {
                 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
         };
 
+        //Assertions.assertEquals(32, main.keySubstitution(afterXor48bits).length);
         Assertions.assertArrayEquals(returnKey, main.keySubstitution(afterXor48bits));
     }
 
     @Test
     void permutationBox() {
+    }
+
+    @Test
+    void testKeyGenEveryRound() {
+        Encryption main = new Encryption();
+        byte[] key = {0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1, 1, 1, 1,
+                0, 0, 0, 0, 1, 1, 1, 1};
+        byte oldKey[] = main.getEffectiveKey(key);
+        for(int i = 0; i < 17; i++) {
+            main.thisRoundKey(key, i);
+        }
+        Assertions.assertArrayEquals(key, oldKey);
     }
 }
