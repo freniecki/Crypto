@@ -157,4 +157,17 @@ class EncryptionTest {
     @Test
     void permutationBox() {
     }
+
+
+    String printBits(byte s) {
+        return String.format("%8s",
+                Integer.toBinaryString(s).replace(' ','0'));
+    }
+
+    @Test
+    void testPrint() {
+        System.out.println(printBits((byte) 3));
+        System.out.println(printBits((byte) 17));
+
+    }
 }
