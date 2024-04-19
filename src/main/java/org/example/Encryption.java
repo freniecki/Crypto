@@ -65,31 +65,6 @@ public class Encryption {
             {19, 13, 30, 6, 22, 11, 4, 25}
     };
 
-    BitSet changeToOneDimension(BitSet[] twoDimension, int setCount, int bitsCount) {
-        BitSet oneDimension = new BitSet(setCount * bitsCount);
-
-        for (int i = 0; i < setCount; i++) {
-            for (int j = 0; j < bitsCount; j++) {
-                oneDimension.set(i * setCount + bitsCount, twoDimension[i].get(j));
-            }
-        }
-
-        return oneDimension;
-    }
-
-    BitSet[] changeToTwoDimension(BitSet oneDimension, int col, int row) {
-        BitSet[] twoDimension = new BitSet[col];
-
-        for (int i = 0; i < col; i++) {
-            twoDimension[i] = new BitSet(row);
-            for (int j = 0; j < row; j++) {
-                twoDimension[i].set(j, oneDimension.get(i * col + row));
-            }
-        }
-
-        return twoDimension;
-    }
-
     /**
      * I don't know
      * @param decimal Integer value to change in 4 bits string
@@ -101,8 +76,6 @@ public class Encryption {
         while (binaryString.length() < 4) {
             binaryString = "0" + binaryString;
         }
-
-        logger.info(binaryString);
 
         BitSet sBoxBin = new BitSet(4);
         for (int i = 0; i < 4; i++) {
@@ -121,16 +94,15 @@ public class Encryption {
      * @return 48 bits expanded set
      */
     BitSet expansionPermutation(BitSet rightHalf) {
-        BitSet[] expandedDraft = new BitSet[6];
+        BitSet expanded = new BitSet(48);
 
         for (int i = 0; i < 6; i++) {
-            expandedDraft[i] = new BitSet(8);
             for (int j = 0; j < 8; j++) {
-                expandedDraft[i].set(j, rightHalf.get(expansionMatrix[i][j] - 1));
+                expanded.set(i * 8 + j, rightHalf.get(expansionMatrix[i][j] - 1));
             }
         }
 
-        return changeToOneDimension(expandedDraft, 6, 8);
+        return expanded;
     }
 
     /**
@@ -143,9 +115,7 @@ public class Encryption {
      */
     int sBox(String sBoxString, int sBoxNumber) {
         String stringColumn = sBoxString.charAt(0) + sBoxString.substring(5);
-        logger.info(stringColumn);
         String stringRow = sBoxString.substring(1, 5);
-        logger.info(stringRow);
 
         int columnIndex = Integer.parseInt(stringColumn, 2);
         int rowIndex = Integer.parseInt(stringRow, 2);
@@ -165,10 +135,13 @@ public class Encryption {
         BitSet substituteKey = new BitSet(32);
 
         for (int i = 0; i < 8; i++) {
+            // clears before getting next 6 bits
+            sBoxSix.clear();
             for (int j = 0; j < 6; j++) {
+                // sets bits from innerXor to position 0-5
                 sBoxSix.set(j, innerXor.get(i * 6 + j));
             }
-
+            // get the 4 bits value of integer pointed by sBoxSix
             sBoxFour = decimalToBitSet(sBox(bitsToString(sBoxSix, 6), i));
 
             for (int j = 0; j < 4; j++) {
@@ -188,7 +161,7 @@ public class Encryption {
         BitSet permutatedKey = new BitSet(32);
 
         for (int i = 0; i < 32; i++) {
-            int index = pBlockMatrix[i / 4][i % 4];
+            int index = pBlockMatrix[i / 8][i % 8] - 1;
             permutatedKey.set(i, substitutedKey.get(index));
         }
         return permutatedKey;
@@ -235,6 +208,8 @@ public class Encryption {
         }
         return effectiveKey;
     }
+
+    /*-----------------Supporting methods-------------*/
 
     /**
      * Return clean string of given bits count
