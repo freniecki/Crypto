@@ -1,5 +1,6 @@
 package org.example;
 
+import java.text.BreakIterator;
 import java.util.BitSet;
 import java.util.logging.Logger;
 
@@ -65,8 +66,36 @@ public class Encryption {
             {19, 13, 30, 6, 22, 11, 4, 25}
     };
 
+    private final int[] keyShiftStep = {
+            1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1
+    };
+
+    private final int[][] firstKeyPermutation = {
+            {57, 49, 41, 33, 25, 17, 9,
+                    1, 58, 50, 42, 34, 26, 18,
+                    10, 2, 59, 51, 43, 35, 27,
+                    19, 11, 3, 60, 52, 44, 36},
+
+            {63, 55, 47, 39, 31, 23, 15,
+                    7, 62, 54, 46, 38, 30, 22,
+                    14, 6, 61, 53, 45, 37, 29,
+                    21, 13, 5, 28, 20, 12, 4}
+    };
+
+    private final int[][] secondKeyPermutation = {
+            {14, 17, 11, 24, 1, 5, 3, 28},
+            {15, 6, 21, 10, 23, 19, 12, 4},
+            {26, 8, 16, 7, 27, 20, 13, 2},
+            {41, 52, 31, 37, 47, 55, 30, 40},
+            {51, 45, 33, 48, 44, 49, 39, 56},
+            {34, 53, 46, 42, 50, 36, 29, 32}
+    };
+
+    /*----------------Feistel's methods-----------------*/
+
     /**
      * I don't know
+     *
      * @param decimal Integer value to change in 4 bits string
      * @return 4 bits integer representation
      */
@@ -154,6 +183,7 @@ public class Encryption {
 
     /**
      * Permutate 32 bit word by permutation matrix
+     *
      * @param substitutedKey 32 bit result of sBoxing
      * @return 32 bit after round permutation
      */
@@ -169,9 +199,10 @@ public class Encryption {
 
     /**
      * Process left and right half to get new rightHalf
+     *
      * @param rightHalf 32 bits of right half of message
-     * @param leftHalf 32 bits of left half of message
-     * @param roundKey generated 48 bits from key
+     * @param leftHalf  32 bits of left half of message
+     * @param roundKey  generated 48 bits from key
      * @return New rightHalf based on mangler algorithm
      */
     BitSet manglerFunction(BitSet rightHalf, BitSet leftHalf, BitSet roundKey) {
@@ -183,10 +214,10 @@ public class Encryption {
 
         return newRightHalf;
     }
-    
+
     BitSet encryption(BitSet message, BitSet key) {
         BitSet encryptedMessage = new BitSet(64);
-        
+
         BitSet leftHalf = new BitSet(32);
         BitSet rightHalf = new BitSet(32);
 
@@ -194,19 +225,41 @@ public class Encryption {
             rightHalf = manglerFunction(rightHalf, leftHalf, key);
             leftHalf = rightHalf;
         }
-        
+
         return encryptedMessage;
     }
 
     /*-----------------Key methods--------------------*/
-    BitSet getEffectiveKey(BitSet inputKey) {
-        BitSet effectiveKey = new BitSet(7);
+
+    void
+
+    /**
+     * Creates effective key based on PC-1 table
+     * @param inputKey 64 bits key from input
+     * @return 56 secret key
+     */
+    BitSet getSecretKey(BitSet inputKey) {
+        BitSet permutatedKey = new BitSet(56);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 7; j++) {
-                effectiveKey.set(i * 7 + j, inputKey.get(i * 8 + j));
+                permutatedKey.set(i * 7 + j, inputKey.get(firstKeyPermutation[i][j]));
             }
         }
-        return effectiveKey;
+        return permutatedKey;
+    }
+
+    BitSet getRoundKey(BitSet leftHalf, BitSet rightHalf) {
+        BitSet roundKey = new BitSet(48);
+        rightHalf.
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 8; j++) {
+                roundKey.set(i * 8 + j, leftHalf.get(secondKeyPermutation[i][j]));
+            }
+        }
+        for (int i = 3; i < 6; i++) {
+
+        }
+        return roundKey;
     }
 
     /*-----------------Supporting methods-------------*/
