@@ -5,6 +5,7 @@ import java.util.BitSet;
 import java.util.logging.Logger;
 
 import static java.lang.Character.getNumericValue;
+import static java.lang.Character.offsetByCodePoints;
 
 public class Encryption {
 
@@ -221,43 +222,79 @@ public class Encryption {
         BitSet leftHalf = new BitSet(32);
         BitSet rightHalf = new BitSet(32);
 
+        BitSet effectiveKey = getEffectiveKey(key);
+        BitSet shiftedKey;
         for (int i = 0; i < 16; i++) {
-            rightHalf = manglerFunction(rightHalf, leftHalf, key);
+            shiftedKey = keyShift(effectiveKey, i);
+            rightHalf = manglerFunction(rightHalf, leftHalf, shiftedKey);
             leftHalf = rightHalf;
         }
 
         return encryptedMessage;
     }
 
-    /*-----------------Key methods--------------------*/
 
-    void
+    /*-----------------Key methods--------------------*/
 
     /**
      * Creates effective key based on PC-1 table
+     *
      * @param inputKey 64 bits key from input
      * @return 56 secret key
      */
-    BitSet getSecretKey(BitSet inputKey) {
-        BitSet permutatedKey = new BitSet(56);
+    BitSet getEffectiveKey(BitSet inputKey) {
+        BitSet effectiveKey = new BitSet(56);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 7; j++) {
-                permutatedKey.set(i * 7 + j, inputKey.get(firstKeyPermutation[i][j]));
+                effectiveKey.set(i * 7 + j, inputKey.get(firstKeyPermutation[i][j]));
             }
         }
-        return permutatedKey;
+        return effectiveKey;
     }
 
-    BitSet getRoundKey(BitSet leftHalf, BitSet rightHalf) {
-        BitSet roundKey = new BitSet(48);
-        rightHalf.
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 8; j++) {
-                roundKey.set(i * 8 + j, leftHalf.get(secondKeyPermutation[i][j]));
+    private BitSet keyShift(BitSet effectiveKey, int roundNumber) {
+        BitSet shiftedKey = new BitSet(56);
+        if (keyShiftStep[roundNumber] == 1) {
+            // 0  ...  27 | 28  ... 55
+            boolean getLeftFirst = effectiveKey.get(0);
+            for (int i = 0; i < 27; i++) {
+                shiftedKey.set(i, effectiveKey.get(i + 1));
             }
-        }
-        for (int i = 3; i < 6; i++) {
+            shiftedKey.set(27, getLeftFirst);
 
+            boolean getRightFirst = effectiveKey.get(28);
+            for (int i = 28; i < 55; i++) {
+                shiftedKey.set(i, effectiveKey.get(i + 1));
+            }
+            shiftedKey.set(55, getRightFirst);
+        } else {
+            // 0 1 ... 26 27 | 28 29 ... 54 55
+            boolean getLeftFirst = effectiveKey.get(0);
+            boolean getLeftSecond = effectiveKey.get(1);
+            for (int i = 0; i < 26; i++) {
+                shiftedKey.set(i, effectiveKey.get(i + 2));
+            }
+            shiftedKey.set(26, getLeftFirst);
+            shiftedKey.set(27, getLeftSecond);
+
+            boolean getRightFirst = effectiveKey.get(28);
+            boolean getRightSecond = effectiveKey.get(29);
+            for (int i = 28; i < 54; i++) {
+                shiftedKey.set(i, effectiveKey.get(i + 2));
+            }
+            shiftedKey.set(54, getRightFirst);
+            shiftedKey.set(55, getRightSecond);
+        }
+
+        return shiftedKey;
+    }
+
+    BitSet getRoundKey(BitSet shiftedKey) {
+        BitSet roundKey = new BitSet(48);
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 8; j++) {
+                roundKey.set(i * 8 + j, shiftedKey.get(secondKeyPermutation[i][j]));
+            }
         }
         return roundKey;
     }
