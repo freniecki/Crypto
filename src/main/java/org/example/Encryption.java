@@ -254,6 +254,13 @@ public class Encryption {
         return newRightHalf;
     }
 
+
+    /**
+     * Main method for encryption.
+     * @param message 64-bit message in BitSet(64)
+     * @param key 64-bit key in BitSet(64)
+     * @return encrypted message in BitSet(64)
+     */
     BitSet encryption(BitSet message, BitSet key) {
         BitSet initialPermutationMessage = initialPermutation(message);
 

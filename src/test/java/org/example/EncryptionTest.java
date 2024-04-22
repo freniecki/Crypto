@@ -239,5 +239,11 @@ class EncryptionTest {
         String encryptedString =
                 "1000010111101000000100110101010000001111000010101011010000000101";
         Assertions.assertEquals(encryptedString, Encryption.bitsToString(encrypted, 64));
+
+
+        String mainString =
+                "1000010111101000000100110101010000001111000010101011010000000101";
+
+        Assertions.assertEquals(mainString, encryptedString);
     }
 }
