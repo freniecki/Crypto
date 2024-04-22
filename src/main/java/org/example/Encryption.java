@@ -1,15 +1,21 @@
 package org.example;
 
-import java.text.BreakIterator;
 import java.util.BitSet;
-import java.util.logging.Logger;
 
 import static java.lang.Character.getNumericValue;
-import static java.lang.Character.offsetByCodePoints;
 
 public class Encryption {
 
-    Logger logger = Logger.getLogger(getClass().getName());
+    public final int[][] initialPermutation = {
+            {58, 50, 42, 34, 26, 18, 10, 2},
+            {60, 52, 44, 36, 28, 20, 12, 4},
+            {62, 54, 46, 38, 30, 22, 14, 6},
+            {64, 56, 48, 40, 32, 24, 16, 8},
+            {57, 49, 41, 33, 25, 17, 9, 1},
+            {59, 51, 43, 35, 27, 19, 11, 3},
+            {61, 53, 45, 37, 29, 21, 13, 5},
+            {63, 55, 47, 39, 31, 23, 15, 7}
+    };
     public final int[][] expansionMatrix = {
             {32, 1, 2, 3, 4, 5, 4, 5},
             {6, 7, 8, 9, 8, 9, 10, 11},
@@ -113,27 +119,15 @@ public class Encryption {
 
     /*----------------Feistel's methods-----------------*/
 
-    /**
-     * I don't know
-     *
-     * @param decimal Integer value to change in 4 bits string
-     * @return 4 bits integer representation
-     */
-    BitSet decimalToBitSet(int decimal) {
-        String binaryString = Integer.toBinaryString(decimal);
 
-        while (binaryString.length() < 4) {
-            binaryString = "0" + binaryString;
-        }
-
-        BitSet sBoxBin = new BitSet(4);
-        for (int i = 0; i < 4; i++) {
-            if (getNumericValue(binaryString.charAt(i)) == 1) {
-                sBoxBin.set(i);
+    BitSet initialPermutation(BitSet message) {
+        BitSet permutatedMessage = new BitSet(64);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                permutatedMessage.set(i * 8 + j, message.get(initialPermutation[i][j] - 1));
             }
         }
-
-        return sBoxBin;
+        return permutatedMessage;
     }
 
     /**
@@ -152,6 +146,30 @@ public class Encryption {
         }
 
         return expanded;
+    }
+
+    /**
+     * I don't know
+     *
+     * @param decimal Integer value to change in 4 bits string
+     * @return 4 bits integer representation
+     */
+    BitSet decimalToBitSet(int decimal) {
+        StringBuilder binaryString = new StringBuilder();
+        binaryString.append(Integer.toBinaryString(decimal));
+
+        while (binaryString.length() < 4) {
+            binaryString.insert(0, '0');
+        }
+
+        BitSet sBoxBin = new BitSet(4);
+        for (int i = 0; i < 4; i++) {
+            if (getNumericValue(binaryString.charAt(i)) == 1) {
+                sBoxBin.set(i);
+            }
+        }
+
+        return sBoxBin;
     }
 
     /**
@@ -222,12 +240,13 @@ public class Encryption {
      *
      * @param rightHalf 32 bits of right half of message
      * @param leftHalf  32 bits of left half of message
-     * @param roundKey  generated 48 bits from key
+     * @param roundKey56 56 bits from key permutation
      * @return New rightHalf based on mangler algorithm
      */
-    BitSet manglerFunction(BitSet rightHalf, BitSet leftHalf, BitSet roundKey) {
+    BitSet manglerFunction(BitSet rightHalf, BitSet leftHalf, BitSet roundKey56) {
         BitSet expanded = expansionPermutation(rightHalf);
-        expanded.xor(getRoundKey(roundKey));
+        BitSet roundKey48 = getRoundKey(roundKey56);
+        expanded.xor(roundKey48);
         BitSet newRightHalf = permutationFunction(keySubstitution(expanded));
 
         newRightHalf.xor(leftHalf);
@@ -236,14 +255,14 @@ public class Encryption {
     }
 
     BitSet encryption(BitSet message, BitSet key) {
-        BitSet encryptedMessage = new BitSet(64);
+        BitSet initialPermutationMessage = initialPermutation(message);
 
         BitSet leftHalf = new BitSet(32);
         BitSet rightHalf = new BitSet(32);
 
         for (int i = 0; i < 32; i++) {
-            leftHalf.set(i, message.get(i));
-            rightHalf.set(i, message.get(i + 32));
+            leftHalf.set(i, initialPermutationMessage.get(i));
+            rightHalf.set(i, initialPermutationMessage.get(i + 32));
         }
 
         BitSet effectiveKey = getEffectiveKey(key);
@@ -254,15 +273,17 @@ public class Encryption {
             leftHalf = tmp;
         }
 
-        /* get message after 16th round in one bitset */
+        // combine halfs after 16th round in one bitset
+        // 0-31 from right, 32-63 from left
         for (int i = 0; i < 32; i++) {
-            leftHalf.set(i + 32, rightHalf.get(i));
+            rightHalf.set(i + 32, leftHalf.get(i));
         }
 
+        BitSet encryptedMessage = new BitSet(64);
         // ending permutation
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                encryptedMessage.set(i * 8 + j, leftHalf.get(endingPermutation[i][j] - 1));
+                encryptedMessage.set(i * 8 + j, rightHalf.get(endingPermutation[i][j] - 1));
             }
 
         }
@@ -362,9 +383,9 @@ public class Encryption {
      * @param plainText key or message given in String
      * @return BitSet(64)
      */
-    public static BitSet convertStringToBitSet(String plainText) {
-        BitSet output = new BitSet(64);
-        for (int i = 0; i < 64; i++) {
+    public static BitSet convertStringToBitSet(String plainText, int length) {
+        BitSet output = new BitSet(length);
+        for (int i = 0; i < length; i++) {
             output.set(i, plainText.charAt(i) == '1');
         }
         return output;
