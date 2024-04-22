@@ -86,4 +86,72 @@ class EncryptionTest {
         System.out.println(Encryption.bitsToString(bitSet, 6));
     }
 
+    @Test
+    void convertStringToBits() {
+        Encryption encryption = new Encryption();
+        String binaryMessage =
+                "0000000100100011010001010110011110001001101010111100110111101111";
+        String binaryKey =
+                "0001001100110100010101110111100110011011101111001101111111110001";
+        BitSet key = encryption.convertStringToBitSet(binaryKey);
+        String getStringKeyBack = Encryption.bitsToString(key, 64);
+
+        Assertions.assertEquals(binaryKey, getStringKeyBack);
+    }
+
+    @Test
+    void testAll() {
+        String hexMessage = "0123456789ABCDEF";
+        String binaryMessageEntry =
+                "0000 0001 0010 0011 0100 0101 0110 0111 1000 1001 1010 1011 1100 1101 1110 1111";
+        String binaryKeyEntry =
+                "0001 0011 0011 0100 0101 0111 0111 1001 1001 1011 1011 1100 1101 1111 1111 0001";
+
+        String binaryMessage =
+                "0000000100100011010001010110011110001001101010111100110111101111";
+        String binaryKey =
+                "0001001100110100010101110111100110011011101111001101111111110001";
+
+        String keyAfterPC1 =
+                "11110000110011001010101011110101010101100110011110001111";
+
+        String leftKey1 =
+                "1111000011001100101010101111";
+        String rightKey1 =
+                "0101010101100110011110001111";
+
+        String keyAfterPC2 =
+                "000110110000001011101111111111000111000001110010";
+
+        String afterInitialPermutation =
+                "1100110000000000110011001111111111110000101010101111000010101010";
+
+        System.out.println(binaryKey.charAt(0));
+
+    }
+
+    @Test
+    void keyMethods() {
+        Encryption encryption = new Encryption();
+        String binaryKey =
+                "0001001100110100010101110111100110011011101111001101111111110001";
+        String keyAfterPC1 =
+                "11110000110011001010101011110101010101100110011110001111";
+        BitSet startKey = Encryption.convertStringToBitSet(binaryKey);
+        BitSet effectiveKey = encryption.getEffectiveKey(startKey);
+
+        String effectiveKeyString = Encryption.bitsToString(effectiveKey, 56);
+        Assertions.assertEquals(keyAfterPC1, effectiveKeyString);
+
+        BitSet firstShift = encryption.keyShift(effectiveKey, 0);
+
+        String firstShiftString =
+                        "1110000110011001010101011111" + "1010101011001100111100011110";
+        Assertions.assertEquals(firstShiftString, Encryption.bitsToString(firstShift, 56));
+
+        BitSet firstRoundKey = encryption.getRoundKey(firstShift);
+
+        String firstRoundKeyString = "000110110000001011101111111111000111000001110010";
+        Assertions.assertEquals(firstRoundKeyString, Encryption.bitsToString(firstRoundKey, 48));
+    }
 }

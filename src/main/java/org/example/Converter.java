@@ -18,8 +18,6 @@ public class Converter {
     /**
      * converts clear text and string to bitset
      */
-
-
     public List<BitSet> convertMessage() {
         List<BitSet> output = new ArrayList<>();
         for (int i = 0; i < clearText.length()-1; i++) {
@@ -35,18 +33,10 @@ public class Converter {
         }
         return output;
     }
-    public List<BitSet> convertKey() {
-        List<BitSet> output = new ArrayList<>();
-        for (int i = 0; i < key.length()-1; i++) {
-            BitSet block = new BitSet();
-            char letter = key.charAt(i);
-            for (int j = 0; j < 8; j++) {
-                block.set(i, letter%2);
-                letter /= 2;
-            }
-            if (block.size() == 64) {
-                output.add(block);
-            }
+    public BitSet convertStringToBitSet() {
+        BitSet output = new BitSet(64);
+        for (int i = 0; i < 64; i++) {
+            output.set(i, key.charAt(i) == 1);
         }
         return output;
     }
@@ -55,7 +45,7 @@ public class Converter {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < binary.size(); i++) {
             for (int j = 0; j < binary.get(i).size(); j++) {
-                out.append(toString((binary.get(i).get(j)) * 2));  //nie konwertuje z bool do int i nie widzę metody konwertacji
+                //out.append(toString((binary.get(i).get(j)) * 2));  //nie konwertuje z bool do int i nie widzę metody konwertacji
             }
         }
         boolean k = true;
