@@ -3,10 +3,7 @@ package org.example;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
@@ -18,7 +15,7 @@ class MainTest {
         String hexBinary = Main.byteHexToBinaryString(hexByte);
         Assertions.assertEquals(expected, hexBinary);
 
-        BitSet bitSet = Encryption.convertStringToBitSet(hexBinary, 64);
+        BitSet bitSet = DES.convertStringToBitSet(hexBinary, 64);
 
     }
 

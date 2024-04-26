@@ -1,13 +1,15 @@
 package org.example;
 
-import java.io.*;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
 public class Main {
     static Logger logger = Logger.getLogger(Main.class.getName());
 
+    static DES des = new DES();
 
     public static void main(String[] args) {
         ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -22,64 +24,56 @@ public class Main {
         }
 
         if (args[0].equals("encrypt")) {
-            String message = args[1];
-            String key = args[2];
-
-            String[] messageArray = getMessage(message);
-            String keyString = getKeyBitSet(key);
-            BitSet keyBitSet = Encryption.convertStringToBitSet(keyString, 64);
-
-            Encryption encryption = new Encryption();
-            String[] encrypted = new String[messageArray.length];
-            for (int i = 0; i < messageArray.length; i++) {
-                BitSet messageBitSet = Encryption.convertStringToBitSet(messageArray[i], 64);
-                encrypted[i] = Encryption.bitsToString(encryption.encryption(messageBitSet, keyBitSet), 64);
-            }
-            System.out.println(binaryStringToHexString(encrypted));
+            runEncryptionText(args[1], args[2]);
 
         } else if (args[0].equals("encryptF")) {
-            byte[] byteArray = new byte[1024];
-            try {
-                FileInputStream fis = new FileInputStream(args[1]);
-                BufferedInputStream bis = new BufferedInputStream(fis);
-
-                byte[] buffer = new byte[1024];
-
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                int bytesRead;
-                while ((bytesRead = bis.read(buffer)) != -1) {
-                    baos.write(buffer, 0, bytesRead);
-                }
-
-                byteArray = baos.toByteArray();
-
-                bis.close();
-                fis.close();
-            } catch (FileNotFoundException e) {
-                logger.info("file not found");
-            } catch (IOException e) {
-                logger.info("IO exception");
-            }
-
-            String messageString = byteHexToBinaryString(byteArray);
-            String[] messageArray = getMessage(messageString);
-            String keyString = getKeyBitSet(args[2]);
-            BitSet keyBitSet = Encryption.convertStringToBitSet(keyString, 64);
-
-            Encryption encryption = new Encryption();
-            String[] encrypted = new String[messageArray.length];
-            for (int i = 0; i < messageArray.length; i++) {
-                BitSet messageBitSet = Encryption.convertStringToBitSet(messageArray[i], 64);
-                encrypted[i] = Encryption.bitsToString(encryption.encryption(messageBitSet, keyBitSet), 64);
-            }
-
-            System.out.println(binaryStringToHexString(encrypted));
+            runEncryptionFile(args[1], args[2]);
 
         } else {
-            logger.info("error with base command");
+            logger.info("use proper command");
         }
     }
 
+    static void runEncryptionText(String message, String key) {
+        String[] messageArray = getMessage(message);
+        String keyString = getKeyBitSet(key);
+        BitSet keyBitSet = DES.convertStringToBitSet(keyString, 64);
+
+        List<String> encrypted = encryptionCycle(messageArray, keyBitSet);
+
+        System.out.println(encrypted);
+    }
+
+    static void runEncryptionFile(String message, String key) {
+        FileIO fileReader = FileIOFactory.getFile(message);
+        byte[] byteArray = fileReader.read();
+
+        String[] messageArray = getMessage(byteHexToBinaryString(byteArray));
+        BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
+
+        List<String> encrypted = encryptionCycle(messageArray, keyBitSet);
+
+        FileIO fileWriter = FileIOFactory.getFile("encryption.bmp");
+        fileWriter.write(encrypted);
+    }
+
+    static List<String> encryptionCycle(String[] messageArray, BitSet keyBitSet) {
+        List<String> encrypted = new ArrayList<>();
+        String str;
+        for (String s : messageArray) {
+            BitSet messageBitSet = DES.convertStringToBitSet(s, 64);
+            str = DES.bitsToString(des.encryption(messageBitSet, keyBitSet), 64);
+            encrypted.add(binaryStringToHexString(str));
+        }
+        return encrypted;
+    }
+
+    /**
+     * Turns binary-string message to string[]
+     *
+     * @param message Binary-string message
+     * @return 64-bits string array filled with 0 if not 64k
+     */
     public static String[] getMessage(String message) {
         byte[] messageByte = stringHexToByteArray(message);
         String messageString = byteHexToBinaryString(messageByte);
@@ -90,11 +84,9 @@ public class Main {
         String[] messageArray = new String[size];
 
         for (int i = 0; i < size; i++) {
-               messageArray[i] = messageString.substring(i * 64, i * 64 + 64);
+            messageArray[i] = messageString.substring(i * 64, i * 64 + 64);
         }
 
-        // 256 / 64 = 4
-        // 192+63 = 255
         return messageArray;
     }
 
@@ -121,17 +113,14 @@ public class Main {
         return byteHexToBinaryString(hexByte);
     }
 
-    public static String binaryStringToHexString(String[] binary) {
+    public static String binaryStringToHexString(String binary) {
         StringBuilder stringBuilder = new StringBuilder();
         String hexString;
         int hexDecimal;
-        for (String s : binary) {
-            for (int i = 0; i < 16; i++) {
-                hexString = s.substring(i * 4, i * 4 + 4);
-                hexDecimal = Integer.parseInt(hexString, 2);
-                stringBuilder.append(Integer.toHexString(hexDecimal));
-            }
-            stringBuilder.append("\n");
+        for (int i = 0; i < 16; i++) {
+            hexString = binary.substring(i * 4, i * 4 + 4);
+            hexDecimal = Integer.parseInt(hexString, 2);
+            stringBuilder.append(Integer.toHexString(hexDecimal));
         }
         return stringBuilder.toString();
     }

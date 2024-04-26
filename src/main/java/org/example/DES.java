@@ -4,7 +4,7 @@ import java.util.BitSet;
 
 import static java.lang.Character.getNumericValue;
 
-public class Encryption {
+public class DES {
 
     public final int[][] initialPermutation = {
             {58, 50, 42, 34, 26, 18, 10, 2},
@@ -128,6 +128,16 @@ public class Encryption {
             }
         }
         return permutatedMessage;
+    }
+
+    BitSet endingPermutation(BitSet param) {
+        BitSet endingPermutationMessage = new BitSet(64);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                endingPermutationMessage.set(i * 8 + j, param.get(endingPermutation[i][j] - 1));
+            }
+        }
+        return endingPermutationMessage;
     }
 
     /**
@@ -262,14 +272,14 @@ public class Encryption {
      * @return encrypted message in BitSet(64)
      */
     BitSet encryption(BitSet message, BitSet key) {
-        BitSet initialPermutationMessage = initialPermutation(message);
+        BitSet firstStep = initialPermutation(message);
 
         BitSet leftHalf = new BitSet(32);
         BitSet rightHalf = new BitSet(32);
 
         for (int i = 0; i < 32; i++) {
-            leftHalf.set(i, initialPermutationMessage.get(i));
-            rightHalf.set(i, initialPermutationMessage.get(i + 32));
+            leftHalf.set(i, firstStep.get(i));
+            rightHalf.set(i, firstStep.get(i + 32));
         }
 
         BitSet effectiveKey = getEffectiveKey(key);
@@ -286,16 +296,48 @@ public class Encryption {
             rightHalf.set(i + 32, leftHalf.get(i));
         }
 
-        BitSet encryptedMessage = new BitSet(64);
-        // ending permutation
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                encryptedMessage.set(i * 8 + j, rightHalf.get(endingPermutation[i][j] - 1));
-            }
+        return endingPermutation(rightHalf);
+    }
 
+
+    /**
+     * Main method for decryption
+     * @param message Message in 64-bit BitSet
+     * @param key Key in 64-bit BitSet
+     * @return Decrypted message in 64-bit BitSet
+     */
+    BitSet decryption(BitSet message, BitSet key) {
+        BitSet lastStep = initialPermutation(message);
+
+        // get halfs
+        BitSet leftHalf = new BitSet(32);
+        BitSet rightHalf = new BitSet(32);
+        for (int i = 0; i < 32; i++) {
+            leftHalf.set(i, lastStep.get(i));
+            rightHalf.set(i, lastStep.get(i + 32));
         }
 
-        return encryptedMessage;
+        // get effectiveKeys
+        BitSet effectiveKey = getEffectiveKey(key);
+        BitSet[] roundKeys = new BitSet[16];
+        for (int i = 0; i < 16; i++) {
+            effectiveKey = keyShift(effectiveKey, i);
+            roundKeys[i] = effectiveKey;
+        }
+        // all 16 rounds, keys in reverse order
+        for (int i = 0; i < 16; i++) {
+            BitSet tmp = rightHalf;
+            rightHalf = manglerFunction(rightHalf, leftHalf, roundKeys[15 - i]);
+            leftHalf = tmp;
+        }
+
+        // combine halfs
+        for (int i = 0; i < 32; i++) {
+            rightHalf.set(i + 32, leftHalf.get(i));
+        }
+
+        // initial permutation
+        return endingPermutation(rightHalf);
     }
 
     /*-----------------Key methods--------------------*/
