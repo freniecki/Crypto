@@ -1,14 +1,17 @@
 package org.example;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class FileIO {
 
     private final String fileName;
 
-    Logger logger = Logger.getLogger(getClass().getName());
+    static Logger logger = Logger.getLogger(FileIO.class.getName());
 
     FileIO(String fileName) {
         this.fileName = fileName;
@@ -16,32 +19,35 @@ public class FileIO {
 
     public byte[] read() {
         byte[] byteArray = new byte[1024];
-        try {
-            FileInputStream fis = new FileInputStream(fileName);
-            BufferedInputStream bis = new BufferedInputStream(fis);
+        String filePath = new File(fileName).getAbsolutePath();
 
-            byte[] buffer = new byte[1024];
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            Stream<String> stream = reader.lines();
+            List<String> message = new ArrayList<>(stream.toList());
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            int bytesRead;
-            while ((bytesRead = bis.read(buffer)) != -1) {
-                baos.write(buffer, 0, bytesRead);
-            }
-
-            byteArray = baos.toByteArray();
-
-            bis.close();
-            fis.close();
+            byteArray = toByteArray(message);
 
         } catch (FileNotFoundException e) {
-            logger.info("raed exception");
+            logger.info("FileNotFoundException");
         } catch (IOException e) {
-            logger.info("IO exception");
+            logger.info("IOException");
         }
+
         return byteArray;
     }
 
-    public void write(List<String> message) {
+    public static byte[] toByteArray(List<String> strings) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (String str : strings) {
+            byte[] bytes = str.getBytes();
+            outputStream.write(bytes);
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    public void write(byte[] message) {
         String filePath = new File(fileName).getAbsolutePath();
         logger.info(filePath);
         File file = new File(filePath);
@@ -60,11 +66,8 @@ public class FileIO {
             logger.info("error when creating file");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-
-            for (String line : message) {
-                writer.write(line);
-            }
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(filePath))) {
+            outputStream.write(message);
             logger.info("written to file");
         } catch (IOException e) {
             logger.info("cannot write to file");

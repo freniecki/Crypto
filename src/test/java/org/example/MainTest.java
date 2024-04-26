@@ -3,7 +3,10 @@ package org.example;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 class MainTest {
 
@@ -35,6 +38,33 @@ class MainTest {
     @Test
     void byteArrayToBitSetArray() {
 
+    }
+
+    @Test
+    void combineByteArray() {
+        List<byte[]> list = new ArrayList<>();
+        byte[] byte1 = new byte[8];
+        byte1[0] = (byte) 17;
+        list.add(byte1);
+        for (byte aByte : byte1) {
+            System.out.println(DES.byteToBinaryString(aByte));
+        }
+
+        byte[] byte2 = new byte[8];
+        byte2[0] = (byte) 17;
+        list.add(byte2);
+        for (byte aByte : byte2) {
+            System.out.println(DES.byteToBinaryString(aByte));
+        }
+
+        byte[] newList;
+        newList = Main.combineByteArray(list);
+
+
+        System.out.println("----------------------------");
+        for (byte aByte : newList) {
+            System.out.println(DES.byteToBinaryString(aByte));
+        }
     }
 
 }

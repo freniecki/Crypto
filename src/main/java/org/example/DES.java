@@ -248,8 +248,8 @@ public class DES {
     /**
      * Process left and right half to get new rightHalf
      *
-     * @param rightHalf 32 bits of right half of message
-     * @param leftHalf  32 bits of left half of message
+     * @param rightHalf  32 bits of right half of message
+     * @param leftHalf   32 bits of left half of message
      * @param roundKey56 56 bits from key permutation
      * @return New rightHalf based on mangler algorithm
      */
@@ -267,8 +267,9 @@ public class DES {
 
     /**
      * Main method for encryption.
+     *
      * @param message 64-bit message in BitSet(64)
-     * @param key 64-bit key in BitSet(64)
+     * @param key     64-bit key in BitSet(64)
      * @return encrypted message in BitSet(64)
      */
     BitSet encryption(BitSet message, BitSet key) {
@@ -299,11 +300,11 @@ public class DES {
         return endingPermutation(rightHalf);
     }
 
-
     /**
      * Main method for decryption
+     *
      * @param message Message in 64-bit BitSet
-     * @param key Key in 64-bit BitSet
+     * @param key     Key in 64-bit BitSet
      * @return Decrypted message in 64-bit BitSet
      */
     BitSet decryption(BitSet message, BitSet key) {
@@ -438,5 +439,25 @@ public class DES {
             output.set(i, plainText.charAt(i) == '1');
         }
         return output;
+    }
+
+    public static byte[] bitSetToByteArray(BitSet bitSet) {
+        byte[] byteArray = new byte[8];
+
+        for (int i = 0; i < 64; i++) {
+            if (bitSet.get(i)) {
+                byteArray[7 - (i / 8)] |= (byte) (1 << (i % 8));
+            }
+        }
+
+        return byteArray;
+    }
+
+    public static String byteToBinaryString(byte b) {
+        StringBuilder binaryString = new StringBuilder();
+        for (int i = 7; i >= 0; i--) {
+            binaryString.append((b >> i) & 1);
+        }
+        return binaryString.toString();
     }
 }

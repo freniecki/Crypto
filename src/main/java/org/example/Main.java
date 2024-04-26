@@ -1,5 +1,7 @@
 package org.example;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -15,62 +17,129 @@ public class Main {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
         /*
-            encryption -jar encrypt message(in HEX) key(in HEX)
-            encryptF fileName key(in HEX)
+
          */
-        if (args.length != 3) {
+        if (args.length != 5) {
+            String info = """ 
+                    proper usage:
+                    1. encrypt text message(in HEX) fileName key(in HEX)
+                    2. decrypt text message(in HEX) fileName key(in HEX)
+                    3. encrypt file fileName fileName key(in HEX)
+                    4. decrypt file fileName fileName key(in HEX)
+                    """;
+
             logger.info("use 3 arguments");
+            logger.info(info);
             return;
         }
 
         if (args[0].equals("encrypt")) {
-            runEncryptionText(args[1], args[2]);
-
-        } else if (args[0].equals("encryptF")) {
-            runEncryptionFile(args[1], args[2]);
-
+            if (args[1].equals("text")) {
+                runEncryptionText(args[2], args[3], args[4]);
+            } else if (args[1].equals("file")) {
+                runEncryptionFile(args[2], args[3], args[4]);
+            } else {
+                logger.info("text or file?");
+            }
+        } else if (args[0].equals("decrypt")) {
+            if (args[1].equals("text")) {
+                runDecryptionText(args[2], args[3], args[4]);
+            } else if (args[1].equals("file")) {
+                runDecryptionFile(args[2], args[3], args[4]);
+            } else {
+                logger.info("text or file?");
+            }
         } else {
             logger.info("use proper command");
         }
     }
 
-    static void runEncryptionText(String message, String key) {
+    static void runEncryptionText(String message, String fileName, String key) {
         String[] messageArray = getMessage(message);
         String keyString = getKeyBitSet(key);
         BitSet keyBitSet = DES.convertStringToBitSet(keyString, 64);
 
-        List<String> encrypted = encryptionCycle(messageArray, keyBitSet);
+        List<byte[]> encrypted = encryptionCycle(messageArray, keyBitSet);
 
-        System.out.println(encrypted);
+        FileIO fileWriter = FileIOFactory.getFile(fileName);
+        fileWriter.write(combineByteArray(encrypted));
     }
 
-    static void runEncryptionFile(String message, String key) {
-        FileIO fileReader = FileIOFactory.getFile(message);
+    private static void runDecryptionText(String message, String fileName, String key) {
+        String[] messageArray = getMessage(message);
+        String keyString = getKeyBitSet(key);
+        BitSet keyBitSet = DES.convertStringToBitSet(keyString, 64);
+
+        List<byte[]> decrypted = decryptionCycle(messageArray, keyBitSet);
+
+        FileIO fileWriter = FileIOFactory.getFile(fileName);
+        fileWriter.write(combineByteArray(decrypted));
+    }
+
+    static void runEncryptionFile(String inputFileName, String outputFileName, String key) {
+        FileIO fileReader = FileIOFactory.getFile(inputFileName);
         byte[] byteArray = fileReader.read();
 
         String[] messageArray = getMessage(byteHexToBinaryString(byteArray));
         BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
 
-        List<String> encrypted = encryptionCycle(messageArray, keyBitSet);
+        List<byte[]> encrypted = encryptionCycle(messageArray, keyBitSet);
 
-        FileIO fileWriter = FileIOFactory.getFile("encryption.bmp");
-        fileWriter.write(encrypted);
+        FileIO fileWriter = FileIOFactory.getFile(outputFileName);
+        fileWriter.write(combineByteArray(encrypted));
     }
 
-    static List<String> encryptionCycle(String[] messageArray, BitSet keyBitSet) {
-        List<String> encrypted = new ArrayList<>();
-        String str;
+    private static void runDecryptionFile(String inputFileName, String outputFileName, String key) {
+        FileIO fileReader = FileIOFactory.getFile(inputFileName);
+        byte[] byteArray = fileReader.read();
+
+        String[] messageArray = getMessage(byteHexToBinaryString(byteArray));
+        BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
+
+        List<byte[]> decrypted = decryptionCycle(messageArray, keyBitSet);
+
+        FileIO fileWriter = FileIOFactory.getFile(outputFileName);
+        fileWriter.write(combineByteArray(decrypted));
+    }
+
+    static List<byte[]> encryptionCycle(String[] messageArray, BitSet keyBitSet) {
+        List<byte[]> encrypted = new ArrayList<>();
+        byte[] aByte;
         for (String s : messageArray) {
             BitSet messageBitSet = DES.convertStringToBitSet(s, 64);
-            str = DES.bitsToString(des.encryption(messageBitSet, keyBitSet), 64);
-            encrypted.add(binaryStringToHexString(str));
+            aByte = DES.bitSetToByteArray(des.encryption(messageBitSet, keyBitSet));
+            encrypted.add(aByte);
         }
         return encrypted;
     }
 
+    static List<byte[]> decryptionCycle(String[] messageArray, BitSet keyBitSet) {
+        List<byte[]> decrypted = new ArrayList<>();
+        byte[] aByte;
+        for (String s : messageArray) {
+            BitSet messageBitSet = DES.convertStringToBitSet(s, 64);
+            aByte = DES.bitSetToByteArray(des.decryption(messageBitSet, keyBitSet));
+            decrypted.add(aByte);
+        }
+        return decrypted;
+    }
+
+    static byte[] combineByteArray(List<byte[]> byteArray) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (byte[] bytes : byteArray) {
+            try {
+                outputStream.write(bytes);
+            } catch (IOException e) {
+                logger.info("io exception while combining bytes");
+            }
+        }
+
+        return outputStream.toByteArray();
+    }
+
     /**
      * Turns binary-string message to string[]
-     *
      * @param message Binary-string message
      * @return 64-bits string array filled with 0 if not 64k
      */

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
 
-class EncryptionTest {
+class DESTest {
 
     @Test
     void decimalToBits() {
@@ -96,6 +96,19 @@ class EncryptionTest {
         String getStringKeyBack = DES.bitsToString(key, 64);
 
         Assertions.assertEquals(binaryKey, getStringKeyBack);
+    }
+
+    @Test
+    void bitSetToByteArray() {
+        BitSet bitSet = new BitSet(64);
+        bitSet.set(0,5);
+        bitSet.set(17);
+
+        byte[] bytes = DES.bitSetToByteArray(bitSet);
+
+        for (byte aByte : bytes) {
+            System.out.println(DES.byteToBinaryString(aByte));
+        }
     }
 
     @Test
