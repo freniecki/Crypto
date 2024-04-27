@@ -22,13 +22,10 @@ public class Main {
         if (args.length != 5) {
             String info = """ 
                     proper usage:
-                    1. encrypt text message(in HEX) fileName key(in HEX)
-                    2. decrypt text message(in HEX) fileName key(in HEX)
-                    3. encrypt file fileName fileName key(in HEX)
-                    4. decrypt file fileName fileName key(in HEX)
+                    encrypt/decrypt text/file inoutFileName outputFileName key(in HEX)
                     """;
 
-            logger.info("use 3 arguments");
+            logger.info("use 5 arguments");
             logger.info(info);
             return;
         }
@@ -54,74 +51,117 @@ public class Main {
         }
     }
 
-    static void runEncryptionText(String message, String fileName, String key) {
-        String[] messageArray = getMessage(message);
-        String keyString = getKeyBitSet(key);
-        BitSet keyBitSet = DES.convertStringToBitSet(keyString, 64);
+    static void runEncryptionText(String inputFileName, String outputFileName, String key) {
+        FileIO fileReader = FileIOFactory.getFile(inputFileName);
+        byte[] byteArray = fileReader.read();
 
-        List<byte[]> encrypted = encryptionCycle(messageArray, keyBitSet);
+        BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
 
-        FileIO fileWriter = FileIOFactory.getFile(fileName);
-        fileWriter.write(combineByteArray(encrypted));
+        byte[] encrypted = encryptionCycle(byteArray, keyBitSet);
+
+        FileIO fileWriter = FileIOFactory.getFile(outputFileName);
+        fileWriter.write(encrypted);
     }
 
-    private static void runDecryptionText(String message, String fileName, String key) {
-        String[] messageArray = getMessage(message);
-        String keyString = getKeyBitSet(key);
-        BitSet keyBitSet = DES.convertStringToBitSet(keyString, 64);
+    private static void runDecryptionText(String inputFileName, String outputFileName, String key) {
+        FileIO fileReader = FileIOFactory.getFile(inputFileName);
+        byte[] byteArray = fileReader.read();
 
-        List<byte[]> decrypted = decryptionCycle(messageArray, keyBitSet);
+        BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
 
-        FileIO fileWriter = FileIOFactory.getFile(fileName);
-        fileWriter.write(combineByteArray(decrypted));
+        byte[] decrypted = decryptionCycle(byteArray, keyBitSet);
+
+        FileIO fileWriter = FileIOFactory.getFile(outputFileName);
+        fileWriter.write(decrypted);
     }
 
     static void runEncryptionFile(String inputFileName, String outputFileName, String key) {
         FileIO fileReader = FileIOFactory.getFile(inputFileName);
         byte[] byteArray = fileReader.read();
 
-        String[] messageArray = getMessage(byteHexToBinaryString(byteArray));
         BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
 
-        List<byte[]> encrypted = encryptionCycle(messageArray, keyBitSet);
+        byte[] encrypted = encryptionCycle(byteArray, keyBitSet);
 
         FileIO fileWriter = FileIOFactory.getFile(outputFileName);
-        fileWriter.write(combineByteArray(encrypted));
+        fileWriter.write(encrypted);
     }
 
     private static void runDecryptionFile(String inputFileName, String outputFileName, String key) {
         FileIO fileReader = FileIOFactory.getFile(inputFileName);
         byte[] byteArray = fileReader.read();
+        logger.info(String.valueOf(byteArray.length));
 
-        String[] messageArray = getMessage(byteHexToBinaryString(byteArray));
         BitSet keyBitSet = DES.convertStringToBitSet(getKeyBitSet(key), 64);
 
-        List<byte[]> decrypted = decryptionCycle(messageArray, keyBitSet);
+        byte[] decrypted = decryptionCycle(byteArray, keyBitSet);
 
         FileIO fileWriter = FileIOFactory.getFile(outputFileName);
-        fileWriter.write(combineByteArray(decrypted));
+        fileWriter.write(decrypted);
     }
 
-    static List<byte[]> encryptionCycle(String[] messageArray, BitSet keyBitSet) {
-        List<byte[]> encrypted = new ArrayList<>();
+    static byte[] encryptionCycle(byte[] byteArray, BitSet keyBitSet) {
+        List<byte[]> messageArray = byteArrayToByteList(byteArray);
         byte[] aByte;
-        for (String s : messageArray) {
-            BitSet messageBitSet = DES.convertStringToBitSet(s, 64);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (byte[] bytes : messageArray) {
+            BitSet messageBitSet = BitSet.valueOf(bytes);
             aByte = DES.bitSetToByteArray(des.encryption(messageBitSet, keyBitSet));
-            encrypted.add(aByte);
+            try {
+                outputStream.write(aByte);
+            } catch (IOException e) {
+                logger.info("io exception: encryption cycle");
+            }
         }
-        return encrypted;
+        return outputStream.toByteArray();
     }
 
-    static List<byte[]> decryptionCycle(String[] messageArray, BitSet keyBitSet) {
-        List<byte[]> decrypted = new ArrayList<>();
+    static byte[] decryptionCycle(byte[] byteArray, BitSet keyBitSet) {
+        List<byte[]> messageArray = byteArrayToByteList(byteArray);
         byte[] aByte;
-        for (String s : messageArray) {
-            BitSet messageBitSet = DES.convertStringToBitSet(s, 64);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (byte[] bytes : messageArray) {
+            BitSet messageBitSet = BitSet.valueOf(bytes);
             aByte = DES.bitSetToByteArray(des.decryption(messageBitSet, keyBitSet));
-            decrypted.add(aByte);
+            try {
+                outputStream.write(aByte);
+            } catch (IOException e) {
+                logger.info("io exception: decryption cycle");
+            }
         }
-        return decrypted;
+        return outputStream.toByteArray();
+    }
+
+    static List<byte[]> byteArrayToByteList(byte[] byteArray) {
+        byte[] clearByteArray = byteArrayFillZeros(byteArray);
+        int length = clearByteArray.length / 8;
+        List<byte[]> list = new ArrayList<>();
+        byte[] byteArrayToList = new byte[8];
+
+        for (int i = 0; i < length; i++) {
+            System.arraycopy(clearByteArray, i * 8, byteArrayToList, 0, 8);
+            list.add(byteArrayToList);
+        }
+
+        return list;
+    }
+
+    static byte[] byteArrayFillZeros(byte[] byteArray) {
+        if ( byteArray.length % 8 != 0) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] zeroArray = new byte[8 - byteArray.length % 8 ];
+            try {
+                outputStream.write(byteArray);
+                outputStream.write(zeroArray);
+            } catch (IOException e) {
+                logger.info("io exception: filling with 0's");
+            }
+            return outputStream.toByteArray();
+        } else {
+            return byteArray;
+        }
     }
 
     static byte[] combineByteArray(List<byte[]> byteArray) {
@@ -136,27 +176,6 @@ public class Main {
         }
 
         return outputStream.toByteArray();
-    }
-
-    /**
-     * Turns binary-string message to string[]
-     * @param message Binary-string message
-     * @return 64-bits string array filled with 0 if not 64k
-     */
-    public static String[] getMessage(String message) {
-        byte[] messageByte = stringHexToByteArray(message);
-        String messageString = byteHexToBinaryString(messageByte);
-        if (messageString.length() % 64 != 0) {
-            messageString = messageString + "0".repeat(messageString.length() % 64);
-        }
-        int size = messageString.length() / 64;
-        String[] messageArray = new String[size];
-
-        for (int i = 0; i < size; i++) {
-            messageArray[i] = messageString.substring(i * 64, i * 64 + 64);
-        }
-
-        return messageArray;
     }
 
     public static byte[] stringHexToByteArray(String plainText) {

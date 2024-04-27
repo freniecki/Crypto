@@ -23,19 +23,6 @@ class MainTest {
     }
 
     @Test
-    void getMessage() {
-        String newS = "0123456789ABCDEF0123456789ABCDE";
-
-        System.out.println(newS.length());
-
-        String[] string = Main.getMessage(newS);
-        for (String str : string) {
-            System.out.println(str);
-            System.out.println(str.length());
-        }
-    }
-
-    @Test
     void byteArrayToBitSetArray() {
 
     }

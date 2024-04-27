@@ -18,14 +18,15 @@ public class FileIO {
     }
 
     public byte[] read() {
-        byte[] byteArray = new byte[1024];
         String filePath = new File(fileName).getAbsolutePath();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            Stream<String> stream = reader.lines();
-            List<String> message = new ArrayList<>(stream.toList());
 
-            byteArray = toByteArray(message);
+            int data;
+            while ((data = reader.read()) != -1) {
+                outputStream.write(data);
+            }
 
         } catch (FileNotFoundException e) {
             logger.info("FileNotFoundException");
@@ -33,7 +34,7 @@ public class FileIO {
             logger.info("IOException");
         }
 
-        return byteArray;
+        return outputStream.toByteArray();
     }
 
     public static byte[] toByteArray(List<String> strings) throws IOException {
