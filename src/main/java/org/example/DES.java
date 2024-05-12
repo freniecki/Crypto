@@ -1,10 +1,15 @@
 package org.example;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.BitSet;
+import java.util.List;
+import java.util.logging.Logger;
 
 import static java.lang.Character.getNumericValue;
 
 public class DES {
+    Logger logger = Logger.getLogger(getClass().getName());
 
     public final int[][] initialPermutation = {
             {58, 50, 42, 34, 26, 18, 10, 2},
@@ -339,6 +344,41 @@ public class DES {
 
         // initial permutation
         return endingPermutation(rightHalf);
+    }
+
+    byte[] encrypt(byte[] message, BitSet keyBitSet) {
+        List<byte[]> messageArray = Helper.byteArrayToByteList(message);
+        byte[] aByte;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (byte[] bytes : messageArray) {
+            BitSet messageBitSet = BitSet.valueOf(bytes);
+            aByte = DES.bitSetToByteArray(encryption(messageBitSet, keyBitSet));
+            try {
+                outputStream.write(aByte);
+            } catch (IOException e) {
+                logger.info("io exception: encryption cycle");
+            }
+        }
+        return outputStream.toByteArray();
+    }
+
+    byte[] decrypt(byte[] message, BitSet keyBitSet) {
+        List<byte[]> messageArray = Helper.byteArrayToByteList(message);
+        byte[] aByte;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (byte[] bytes : messageArray) {
+            BitSet messageBitSet = BitSet.valueOf(bytes);
+            aByte = DES.bitSetToByteArray(decryption(messageBitSet, keyBitSet));
+            try {
+                outputStream.write(aByte);
+            } catch (IOException e) {
+                logger.info("io exception: decryption cycle");
+            }
+            messageBitSet.clear();
+        }
+        return outputStream.toByteArray();
     }
 
     /*-----------------Key methods--------------------*/

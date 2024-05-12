@@ -1,11 +1,7 @@
 package org.example;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class FileIO {
 
@@ -13,8 +9,12 @@ public class FileIO {
 
     static Logger logger = Logger.getLogger(FileIO.class.getName());
 
-    FileIO(String fileName) {
+    private FileIO(String fileName) {
         this.fileName = fileName;
+    }
+
+    public static FileIO getFile(String fileName) {
+        return new FileIO(fileName);
     }
 
     public byte[] read() {
@@ -32,17 +32,6 @@ public class FileIO {
             logger.info("FileNotFoundException");
         } catch (IOException e) {
             logger.info("IOException");
-        }
-
-        return outputStream.toByteArray();
-    }
-
-    public static byte[] toByteArray(List<String> strings) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        for (String str : strings) {
-            byte[] bytes = str.getBytes();
-            outputStream.write(bytes);
         }
 
         return outputStream.toByteArray();

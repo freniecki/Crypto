@@ -105,10 +105,14 @@ class DESTest {
         bitSet.set(17);
 
         byte[] bytes = DES.bitSetToByteArray(bitSet);
-
+        byte[] array = {
+                (byte)0, (byte)0, (byte)0, (byte)0,
+                (byte)0, (byte)2, (byte)0, (byte)31
+        };
         for (byte aByte : bytes) {
             System.out.println(DES.byteToBinaryString(aByte));
         }
+        Assertions.assertArrayEquals(bytes, array);
     }
 
     @Test

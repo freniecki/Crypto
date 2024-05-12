@@ -14,8 +14,8 @@ class MainTest {
     void stringToByteArray() {
         String message = "0123456789ABCDEF";
         String expected = "0000000100100011010001010110011110001001101010111100110111101111";
-        byte[] hexByte = Main.stringHexToByteArray(message);
-        String hexBinary = Main.byteHexToBinaryString(hexByte);
+        byte[] hexByte = Helper.stringHexToByteArray(message);
+        String hexBinary = Helper.byteHexToBinaryString(hexByte);
         Assertions.assertEquals(expected, hexBinary);
 
         BitSet bitSet = DES.convertStringToBitSet(hexBinary, 64);
@@ -45,7 +45,7 @@ class MainTest {
         }
 
         byte[] newList;
-        newList = Main.combineByteArray(list);
+        newList = Helper.combineByteArray(list);
 
 
         System.out.println("----------------------------");
@@ -54,4 +54,30 @@ class MainTest {
         }
     }
 
+    @Test
+    void encodeDecode() {
+        byte[] bytes = {
+                (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+                (byte) 0, (byte) 0, (byte) 0, (byte) 0
+        };
+        printBytes(bytes);
+
+        String key = "133457799BBCDFF1";
+        BitSet keyBitSet = DES.convertStringToBitSet(Helper.getKeyBitSet(key), 64);
+
+        byte[] encrypted = Main.des.encrypt(bytes, keyBitSet);
+        printBytes(encrypted);
+
+        byte[] decrypted = Main.des.decrypt(encrypted, keyBitSet);
+        printBytes(decrypted);
+
+        Assertions.assertArrayEquals(bytes, decrypted);
+    }
+
+    void printBytes(byte[] bytes) {
+        for (byte b : bytes) {
+            System.out.println(Helper.byteToBinaryString(b));
+        }
+        System.out.println("---------");
+    }
 }
