@@ -1,9 +1,9 @@
 package org.example;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
+
+import static java.nio.charset.StandardCharsets.*;
 
 public class FileIO {
 
@@ -19,17 +19,16 @@ public class FileIO {
         return new FileIO(fileName);
     }
 
-    public byte[] read() {
+    public byte[] readTextFileToBytes() {
         String filePath = new File(fileName).getAbsolutePath();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-
-            int data;
-            while ((data = reader.read()) != -1) {
-                outputStream.write(data);
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(filePath), US_ASCII))) {
+            int character;
+            while ((character = reader.read()) != -1) {
+                outputStream.write((byte) character);
             }
-
         } catch (FileNotFoundException e) {
             logger.info("FileNotFoundException");
         } catch (IOException e) {
@@ -39,31 +38,47 @@ public class FileIO {
         return outputStream.toByteArray();
     }
 
-    public void write(byte[] message) {
+    public void writeBytesToFile(byte[] data) {
         String filePath = new File(fileName).getAbsolutePath();
         logger.info(filePath);
-        File file = new File(filePath);
 
-        try {
-            if (file.exists()) {
-                logger.info("file exist");
-            } else {
-                if (file.createNewFile()) {
-                    logger.info("file created");
-                } else {
-                    logger.info("cannot create file");
-                }
-            }
+        try (OutputStream outputStream = new FileOutputStream(filePath)) {
+            outputStream.write(data);
+            logger.info("Data written to file");
         } catch (IOException e) {
-            logger.info("error when creating file");
+            logger.info("Error writing data to file");
+        }
+    }
+
+    public byte[] readBytesFromFile() {
+        String filePath = new File(fileName).getAbsolutePath();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (InputStream inputStream = new FileInputStream(filePath)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (FileNotFoundException e) {
+            logger.info("FileNotFoundException");
+        } catch (IOException e) {
+            logger.info("IOException");
         }
 
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(filePath))) {
-            //OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
-            outputStream.write(message);
-            logger.info("written to file");
+        return outputStream.toByteArray();
+    }
+
+    public void writeBytesAsASCII(byte[] data) {
+        String filePath = new File(fileName).getAbsolutePath();
+        logger.info(filePath);
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(filePath), US_ASCII))) {
+            writer.write(new String(data, US_ASCII));
+            logger.info("Data written to file");
         } catch (IOException e) {
-            logger.info("cannot write to file");
+            logger.info("Error writing data to file");
         }
     }
 }
