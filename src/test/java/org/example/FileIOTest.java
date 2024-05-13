@@ -28,7 +28,7 @@ class FileIOTest {
         Assertions.assertArrayEquals(file, decrypted);
     }
 
-    void printBytes(byte[] bytes) {
+    static void printBytes(byte[] bytes) {
         System.out.println("-----test----");
         for (byte b : bytes) {
             System.out.println(Helper.byteToBinaryString(b));
@@ -38,6 +38,6 @@ class FileIOTest {
 }
 
 /*
-java -jar ./build/libs/krypto-1.0-SNAPSHOT.jar encrypt file ./image.bmp ./encrypted.bmp 133457799BBCDFF1;
-java -jar ./build/libs/krypto-1.0-SNAPSHOT.jar decrypt file ./encrypted.bmp ./decrypted.bmp 133457799BBCDFF1
+java -jar ../build/libs/krypto-1.0-SNAPSHOT.jar encrypt file ./image.bmp ./encrypted.bmp 133457799BBCDFF1;
+java -jar ../build/libs/krypto-1.0-SNAPSHOT.jar decrypt file ./encrypted.bmp ./decrypted.bmp 133457799BBCDFF1
  */

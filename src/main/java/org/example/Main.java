@@ -14,7 +14,7 @@ public class Main {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
 
-        if (args.length != 4 && args.length != 5 ) {
+        if (args.length != 5 ) {
             String info = """ 
                     proper usage:
                     encrypt/decrypt text inputFileName outputFileName key(in HEX)

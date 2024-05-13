@@ -6,54 +6,47 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.FileIOTest.printBytes;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HelperTest {
 
     @Test
-    void combineByteArray() {
-    }
-
-    @Test
     void byteArrayFillZeros() {
+        byte[] image = FileIO.getFile("./files/image.bmp").readBytesFromFile();
+        byte[] decrypted = FileIO.getFile("./files/decrypted.bmp").readBytesFromFile();
+
+        printFirstBytes(image);
+        printFirstBytes(decrypted);
+
+
+        printLastBytes(image);
+        printLastBytes(decrypted);
+
+        Assertions.assertArrayEquals(image, decrypted);
     }
 
-    @Test
-    void byteArrayToByteList() {
-        byte[] bytes = {
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0
-        };
-        List<byte[]> list = Helper.byteArrayToByteList(bytes);
-
-        Assertions.assertArrayEquals(bytes, list.getFirst());
-
-        byte[] bytes2 = {
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0
-        };
-        List<byte[]> list2 = Helper.byteArrayToByteList(bytes2);
-
-        Assertions.assertArrayEquals(bytes, list2.getFirst());
+    private void printFirstBytes(byte[] image) {
+        for (int i = 0; i < 8; i++) {
+            System.out.println(Helper.byteToBinaryString(image[i]));
+        }
+        System.out.println("------------");
     }
 
-    @Test
-    void stringHexToByteArray() {
-    }
+    void printLastBytes(byte[] bytes) {
+        int bytesLength = bytes.length;
+        int rest = bytes.length % 8;
+        if (rest !=0) {
+            for (int i = bytesLength - rest; i < bytesLength; i++) {
+                System.out.println(Helper.byteToBinaryString(bytes[i]));
+            }
+            System.out.println("---------");
+        } else {
+            for (int i = bytesLength - 8; i < bytesLength; i++) {
+                System.out.println(Helper.byteToBinaryString(bytes[i]));
+            }
+            System.out.println("---------");
+        }
 
-    @Test
-    void byteHexToBinaryString() {
-    }
-
-    @Test
-    void getKeyBitSet() {
-    }
-
-    @Test
-    void binaryStringToHexString() {
-    }
-
-    @Test
-    void byteToBinaryString() {
     }
 }

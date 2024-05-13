@@ -10,7 +10,8 @@ public class Helper {
 
     static Logger logger = Logger.getLogger(Helper.class.getName());
 
-    private Helper() {}
+    private Helper() {
+    }
 
     static byte[] combineByteArray(List<byte[]> byteArray) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -35,25 +36,43 @@ public class Helper {
         for (int i = 0; i < length; i++) {
             System.arraycopy(clearByteArray, i * 8, byteArrayToList, 0, 8);
             list.add(byteArrayToList);
+            byteArrayToList = new byte[8];
         }
 
         return list;
     }
 
     static byte[] byteArrayFillZeros(byte[] byteArray) {
-        if ( byteArray.length % 8 != 0) {
+        if (byteArray.length % 8 != 0) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            byte[] zeroArray = new byte[8 - byteArray.length % 8 ];
+            int paddingLength = 8 - byteArray.length % 8;
             try {
                 outputStream.write(byteArray);
-                outputStream.write(zeroArray);
+                for (int i = 0; i < paddingLength; i++) {
+                    outputStream.write((byte) paddingLength);
+                }
             } catch (IOException e) {
-                logger.info("io exception: filling with 0's");
+                logger.info("io exception: filling with padding");
             }
             return outputStream.toByteArray();
         } else {
             return byteArray;
         }
+    }
+
+    static byte[] removePadding(byte[] byteArray) {
+        int length = byteArray.length;
+        int paddingLength = byteArray[length - 1] & 0xFF;
+
+        if (paddingLength > length) {
+            return byteArray;
+        }
+
+        int unpaddedLength = length - paddingLength;
+        byte[] unpaddedArray = new byte[unpaddedLength];
+        System.arraycopy(byteArray, 0, unpaddedArray, 0, unpaddedLength);
+
+        return unpaddedArray;
     }
 
     public static byte[] stringHexToByteArray(String plainText) {
@@ -77,18 +96,6 @@ public class Helper {
     public static String getKeyBitSet(String key) {
         byte[] hexByte = stringHexToByteArray(key);
         return byteHexToBinaryString(hexByte);
-    }
-
-    public static String binaryStringToHexString(String binary) {
-        StringBuilder stringBuilder = new StringBuilder();
-        String hexString;
-        int hexDecimal;
-        for (int i = 0; i < 16; i++) {
-            hexString = binary.substring(i * 4, i * 4 + 4);
-            hexDecimal = Integer.parseInt(hexString, 2);
-            stringBuilder.append(Integer.toHexString(hexDecimal));
-        }
-        return stringBuilder.toString();
     }
 
     public static String byteToBinaryString(byte b) {

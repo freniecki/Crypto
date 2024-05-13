@@ -380,7 +380,7 @@ public class DES {
             }
             messageBitSet.clear();
         }
-        return outputStream.toByteArray();
+        return Helper.removePadding(outputStream.toByteArray());
     }
 
     /*-----------------Key methods--------------------*/
