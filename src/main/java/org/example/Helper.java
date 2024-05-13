@@ -10,25 +10,10 @@ public class Helper {
 
     static Logger logger = Logger.getLogger(Helper.class.getName());
 
-    private Helper() {
-    }
-
-    static byte[] combineByteArray(List<byte[]> byteArray) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        for (byte[] bytes : byteArray) {
-            try {
-                outputStream.write(bytes);
-            } catch (IOException e) {
-                logger.info("io exception while combining bytes");
-            }
-        }
-
-        return outputStream.toByteArray();
-    }
+    private Helper() {}
 
     static List<byte[]> byteArrayToByteList(byte[] byteArray) {
-        byte[] clearByteArray = Helper.byteArrayFillZeros(byteArray);
+        byte[] clearByteArray = Helper.addPadding(byteArray);
         int length = clearByteArray.length / 8;
         List<byte[]> list = new ArrayList<>();
         byte[] byteArrayToList = new byte[8];
@@ -42,7 +27,7 @@ public class Helper {
         return list;
     }
 
-    static byte[] byteArrayFillZeros(byte[] byteArray) {
+    static byte[] addPadding(byte[] byteArray) {
         if (byteArray.length % 8 != 0) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             int paddingLength = 8 - byteArray.length % 8;
