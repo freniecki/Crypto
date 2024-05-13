@@ -10,6 +10,8 @@ public class Helper {
 
     static Logger logger = Logger.getLogger(Helper.class.getName());
 
+    private Helper() {}
+
     static byte[] combineByteArray(List<byte[]> byteArray) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

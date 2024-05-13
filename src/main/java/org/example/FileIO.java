@@ -1,6 +1,8 @@
 package org.example;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public class FileIO {
@@ -57,6 +59,7 @@ public class FileIO {
         }
 
         try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(filePath))) {
+            //OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
             outputStream.write(message);
             logger.info("written to file");
         } catch (IOException e) {

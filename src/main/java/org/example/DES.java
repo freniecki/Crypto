@@ -353,7 +353,9 @@ public class DES {
 
         for (byte[] bytes : messageArray) {
             BitSet messageBitSet = BitSet.valueOf(bytes);
-            aByte = DES.bitSetToByteArray(encryption(messageBitSet, keyBitSet));
+            BitSet encrypted = encryption(messageBitSet, keyBitSet);
+            aByte = DES.bitSetToByteArray(encrypted);
+            encrypted.clear();
             try {
                 outputStream.write(aByte);
             } catch (IOException e) {
@@ -484,9 +486,11 @@ public class DES {
     public static byte[] bitSetToByteArray(BitSet bitSet) {
         byte[] byteArray = new byte[8];
 
-        for (int i = 0; i < 64; i++) {
-            if (bitSet.get(i)) {
-                byteArray[7 - (i / 8)] |= (byte) (1 << (i % 8));
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j <8; j++) {
+                if (bitSet.get(i * 8 + j)) {
+                    byteArray[i] |= (byte) (1 << ((i * 8 + j) % 8));
+                }
             }
         }
 

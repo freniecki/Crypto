@@ -1,5 +1,6 @@
 package org.example;
 
+import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -13,20 +14,19 @@ public class Main {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
 
-        if (args.length != 5) {
+        if (args.length != 4 && args.length != 5 ) {
             String info = """ 
                     proper usage:
-                    encrypt/decrypt text/file inoutFileName outputFileName key(in HEX)
+                    encrypt/decrypt text message key(in HEX)
+                    encrypt/decrypt file inputFileName outputFileName key(in HEX)
                     """;
-
-            logger.info("use 5 arguments");
             logger.info(info);
             return;
         }
 
         if (args[0].equals("encrypt")) {
             if (args[1].equals("text")) {
-                runEncryptionText(args[2], args[3], args[4]);
+                runEncryptionText(args[2], args[3]);
             } else if (args[1].equals("file")) {
                 runEncryptionFile(args[2], args[3], args[4]);
             } else {
@@ -34,7 +34,7 @@ public class Main {
             }
         } else if (args[0].equals("decrypt")) {
             if (args[1].equals("text")) {
-                runDecryptionText(args[2], args[3], args[4]);
+                runDecryptionText(args[2], args[3]);
             } else if (args[1].equals("file")) {
                 runDecryptionFile(args[2], args[3], args[4]);
             } else {
@@ -45,28 +45,24 @@ public class Main {
         }
     }
 
-    static void runEncryptionText(String inputFileName, String outputFileName, String key) {
-        FileIO fileReader = FileIO.getFile(inputFileName);
-        byte[] byteArray = fileReader.read();
-
+    static void runEncryptionText(String message, String key) {
+        byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
         BitSet keyBitSet = DES.convertStringToBitSet(Helper.getKeyBitSet(key), 64);
 
-        byte[] encrypted = des.encrypt(byteArray, keyBitSet);
+        byte[] encryptedBytes = des.encrypt(messageBytes, keyBitSet);
 
-        FileIO fileWriter = FileIO.getFile(outputFileName);
-        fileWriter.write(encrypted);
+        String encrypted = new String(encryptedBytes);
+        logger.info(encrypted);
     }
 
-    private static void runDecryptionText(String inputFileName, String outputFileName, String key) {
-        FileIO fileReader = FileIO.getFile(inputFileName);
-        byte[] byteArray = fileReader.read();
-
+    private static void runDecryptionText(String message, String key) {
+        byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
         BitSet keyBitSet = DES.convertStringToBitSet(Helper.getKeyBitSet(key), 64);
 
-        byte[] decrypted = des.decrypt(byteArray, keyBitSet);
+        byte[] decryptedBytes = des.decrypt(messageBytes, keyBitSet);
 
-        FileIO fileWriter = FileIO.getFile(outputFileName);
-        fileWriter.write(decrypted);
+        String decrypted = new String(decryptedBytes);
+        logger.info(decrypted);
     }
 
     static void runEncryptionFile(String inputFileName, String outputFileName, String key) {
