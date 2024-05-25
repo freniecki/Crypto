@@ -24,28 +24,28 @@ public class Schnorr {
 
     private static Random random = new Random();
     public Schnorr(BigInteger a) {
-
+        q = generateQ();
         if((a.compareTo(BigInteger.ONE)) > 0 && a.compareTo(p.subtract(BigInteger.ONE)) < 0) {
             this.a = a;
         }
         else {
-
+            this.a = BigInteger.ZERO;
         }
     }
 
     public static BigInteger generateQ() { // According to algorithm, q > 2^140
         BigInteger initializeQ = BigInteger.ZERO;
         while (initializeQ.compareTo(BigInteger.valueOf(2).pow(140)) > 0) {
-            initializeQ = BigInteger.valueOf(random.nextLong());
+            initializeQ = BigInteger.probablePrime(512, random);
         }
         return initializeQ;
     }
 
-    private BigInteger geneateP() {
-        BigInteger initializeP = 0;
-
-        return initializeP;
-    }
+//    private BigInteger geneateP() {
+//        BigInteger initializeP = 0;
+//
+//        return initializeP;
+//    }
 
     /**
      * Getters. Just for satisfaction [REMOVE IF UNUSED!]
