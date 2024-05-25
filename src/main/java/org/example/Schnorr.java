@@ -6,7 +6,7 @@ import java.util.Random;
 /**
  * That algorithm was implemented according to lecture materials
  **/
-
+//a.compareTo(b);  возвращает (-1 если a < b), (0 если a == b), (1 если a > b)
 public class Schnorr {
     /**
      * Parameters of a public key
@@ -25,6 +25,7 @@ public class Schnorr {
     private static Random random = new Random();
     public Schnorr(BigInteger a) {
         q = generateQ();
+        p = geneateP();
         if((a.compareTo(BigInteger.ONE)) > 0 && a.compareTo(p.subtract(BigInteger.ONE)) < 0) {
             this.a = a;
         }
@@ -33,19 +34,26 @@ public class Schnorr {
         }
     }
 
-    public static BigInteger generateQ() { // According to algorithm, q > 2^140
+    private BigInteger generateQ() { // According to algorithm, q > 2^140
         BigInteger initializeQ = BigInteger.ZERO;
         while (initializeQ.compareTo(BigInteger.valueOf(2).pow(140)) > 0) {
-            initializeQ = BigInteger.probablePrime(512, random);
+            initializeQ = BigInteger.probablePrime(140, random);
         }
         return initializeQ;
     }
 
-//    private BigInteger geneateP() {
-//        BigInteger initializeP = 0;
-//
-//        return initializeP;
-//    }
+    private boolean isANaturalNumber(BigInteger observed) {
+        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).equals(BigInteger.ZERO));
+        // Checking if (p-q)/p belongs to N. It does if this stuff is greater than zero and mod 1 == 0
+    }
+
+    private BigInteger geneateP() { // According to algorithm, p > 2^512
+        BigInteger initializeP = BigInteger.ZERO;
+        while (initializeP.compareTo(BigInteger.valueOf(2).pow(512)) > 0 && isANaturalNumber((p.subtract(BigInteger.ONE)).divide(q))){
+            initializeP = BigInteger.probablePrime(512, random);
+        }
+        return initializeP;
+    }
 
     /**
      * Getters. Just for satisfaction [REMOVE IF UNUSED!]
