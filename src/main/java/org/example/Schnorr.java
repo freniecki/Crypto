@@ -22,6 +22,8 @@ public class Schnorr {
      **/
     private BigInteger a;
 
+    private BigInteger r;
+
     private static Random random = new Random();
     public Schnorr(BigInteger a) {
         q = generateQ();
@@ -35,15 +37,11 @@ public class Schnorr {
     }
 
     private BigInteger generateQ() { // According to algorithm, q > 2^140
-        BigInteger initializeQ = BigInteger.ZERO;
-        while (initializeQ.compareTo(BigInteger.valueOf(2).pow(140)) > 0) {
-            initializeQ = BigInteger.probablePrime(140, random);
-        }
-        return initializeQ;
+        return BigInteger.probablePrime(140, random);
     }
 
     private boolean isANaturalNumber(BigInteger observed) {
-        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).equals(BigInteger.ZERO));
+        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).compareTo(BigInteger.ZERO) == 0);
         // Checking if (p-q)/p belongs to N. It does if this stuff is greater than zero and mod 1 == 0
     }
 
@@ -55,6 +53,14 @@ public class Schnorr {
         return initializeP;
     }
 
+
+    private BigInteger generateR() {
+        BigInteger initializeR = BigInteger.ZERO;
+        while ( initializeR.compareTo(BigInteger.ZERO) < 0 && initializeR.compareTo(q.subtract(BigInteger.ONE)) > 0) {
+            initializeR =
+        }
+        return initializeR;
+    }
     /**
      * Getters. Just for satisfaction [REMOVE IF UNUSED!]
      **/
