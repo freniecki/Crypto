@@ -1,5 +1,7 @@
 package org.example;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -16,6 +18,13 @@ public class Schnorr {
     private BigInteger h;
     private BigInteger v;
 
+    private BigInteger X;
+    private BigInteger Z;
+
+    private byte[] MX;
+    private byte[] MZ;
+
+    private byte[] M;
 
     /**
      * Private key
@@ -24,7 +33,13 @@ public class Schnorr {
 
     private BigInteger r;
 
-    private static Random random = new Random();
+
+    /**
+     * Results
+     **/
+    private BigInteger s1;
+
+    private static final Random random = new Random();
     public Schnorr(BigInteger a) {
         q = generateQ();
         p = geneateP();
@@ -36,29 +51,35 @@ public class Schnorr {
         }
     }
 
+    /**
+     * Generators of required numbers
+     **/
+
     private BigInteger generateQ() { // According to algorithm, q > 2^140
         return BigInteger.probablePrime(140, random);
     }
 
-    private boolean isANaturalNumber(BigInteger observed) {
-        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).compareTo(BigInteger.ZERO) == 0);
-        // Checking if (p-q)/p belongs to N. It does if this stuff is greater than zero and mod 1 == 0
-    }
+//    private boolean isANaturalNumber(BigInteger observed) {
+//        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).compareTo(BigInteger.ZERO) == 0);
+//        // Checking if (p-q)/p belongs to N. It does if this stuff is greater than zero and mod 1 == 0
+//    } not useful so far
 
     private BigInteger geneateP() { // According to algorithm, p > 2^512
-        BigInteger initializeP = BigInteger.ZERO;
-        while (initializeP.compareTo(BigInteger.valueOf(2).pow(512)) > 0 && isANaturalNumber((p.subtract(BigInteger.ONE)).divide(q))){
-            initializeP = BigInteger.probablePrime(512, random);
-        }
+        BigInteger initializeP;
+        do {
+            initializeP = ((BigInteger.probablePrime(512, random)).subtract(BigInteger.ONE));
+            initializeP = initializeP.subtract(initializeP.remainder(q));
+        } while (!initializeP.isProbablePrime(5));
         return initializeP;
     }
 
 
-    private BigInteger generateR() {
-        BigInteger initializeR = BigInteger.ZERO;
-        while ( initializeR.compareTo(BigInteger.ZERO) < 0 && initializeR.compareTo(q.subtract(BigInteger.ONE)) > 0) {
-            initializeR =
-        }
+    private BigInteger generateR() { // According to algorithm 0 < r < q-1
+        BigInteger initializeR;
+        int lentgth = (q.subtract(BigInteger.ONE)).bitLength();
+        do {
+            initializeR = new BigInteger(lentgth, random);
+        } while (initializeR.compareTo(BigInteger.ZERO) < 0 && initializeR.compareTo(q) > 0);
         return initializeR;
     }
     /**
@@ -108,4 +129,46 @@ public class Schnorr {
     }
 
 
+    /**
+     * Concatenation
+     **/
+
+    public byte[] concatenation(byte[] firstRow, byte[] secondRow) {
+        byte[] result = new byte[firstRow.length + secondRow.length];
+        int counter = 0;
+        int j = 0;
+
+        for(int i = 0; i < firstRow.length; i++) {
+            result[i] = firstRow[i];
+            counter = i;
+        }
+
+        for (int i = counter; i < counter + secondRow.length; i++) {
+            result[i] = secondRow[j];
+            j++;
+        }
+
+        return result;
+    }
+
+    public void createMX(){
+        MX = concatenation(M, X.toByteArray());
+    }
+
+    public void createMZ() {
+        MZ = concatenation(M, Z.toByteArray());
+    }
+
+
+    /**
+     * Hash-functions
+     **/
+
+    public BigInteger hashCodeMX() {
+        return BigInteger.valueOf(new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37).append(MX).toHashCode());
+    }
+
+    public BigInteger hashCodeMZ() {
+        return BigInteger.valueOf(new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37).append(MZ).toHashCode());
+    }
 }
