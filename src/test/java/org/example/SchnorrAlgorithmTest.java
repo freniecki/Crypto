@@ -13,7 +13,7 @@ public class SchnorrAlgorithmTest {
     @Test
     void testQInitializer() {
         logger.info(String.valueOf(tested.getQ().bitCount()));
-        Assertions.assertTrue(tested.getQ().bitCount() >= 140);
+        Assertions.assertTrue(tested.getQ().bitLength() >= 140);
     }
 
     @Test
