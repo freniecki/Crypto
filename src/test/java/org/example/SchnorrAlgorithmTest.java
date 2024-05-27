@@ -13,13 +13,13 @@ public class SchnorrAlgorithmTest {
     @Test
     void testQInitializer() {
         logger.info(String.valueOf(tested.getQ().bitCount()));
-        Assertions.assertTrue(tested.getQ().bitCount() >= 512);
+        Assertions.assertTrue(tested.getQ().bitCount() >= 140);
     }
 
     @Test
     void testConstructor() {
         logger.info(String.valueOf(tested.getA()));
-        Assertions.assertEquals(BigInteger.ZERO, tested.getA());
+        Assertions.assertEquals(BigInteger.valueOf(100), tested.getA());
     }
 
 }

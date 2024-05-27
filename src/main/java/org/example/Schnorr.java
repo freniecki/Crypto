@@ -67,8 +67,8 @@ public class Schnorr {
     private BigInteger geneateP() { // According to algorithm, p > 2^512
         BigInteger initializeP;
         do {
-            initializeP = ((BigInteger.probablePrime(512, random)).subtract(BigInteger.ONE));
-            initializeP = initializeP.subtract(initializeP.remainder(q));
+            initializeP = BigInteger.probablePrime(512, random);
+            initializeP = (initializeP.subtract(BigInteger.ONE)).subtract(initializeP.remainder(q));
         } while (!initializeP.isProbablePrime(5));
         return initializeP;
     }
