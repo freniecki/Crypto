@@ -12,8 +12,14 @@ public class SchnorrAlgorithmTest {
     Schnorr tested = new Schnorr(BigInteger.valueOf(100));
     @Test
     void testQInitializer() {
-        logger.info(String.valueOf(tested.getQ().bitCount()));
+        logger.info(String.valueOf(tested.getQ().bitLength()));
         Assertions.assertTrue(tested.getQ().bitLength() >= 140);
+    }
+
+    @Test
+    void testpInitializer() {
+        logger.info(String.valueOf(tested.getP().bitLength()));
+        Assertions.assertTrue(tested.getP().bitLength() >= 512);
     }
 
     @Test

@@ -1,7 +1,5 @@
 package org.example;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -39,6 +37,8 @@ public class Schnorr {
      **/
     private BigInteger s1;
 
+    private BigInteger s2;
+
     private static final Random random = new Random();
     public Schnorr(BigInteger a) {
         q = generateQ();
@@ -59,11 +59,6 @@ public class Schnorr {
         return BigInteger.probablePrime(140, random);
     }
 
-//    private boolean isANaturalNumber(BigInteger observed) {
-//        return observed.compareTo(BigInteger.ZERO) > 0 && (observed.remainder(BigInteger.ONE).compareTo(BigInteger.ZERO) == 0);
-//        // Checking if (p-q)/p belongs to N. It does if this stuff is greater than zero and mod 1 == 0
-//    } not useful so far
-
     private BigInteger geneateP() { // According to algorithm, p > 2^512
         BigInteger initializeP;
         do {
@@ -82,6 +77,18 @@ public class Schnorr {
         } while (initializeR.compareTo(BigInteger.ZERO) < 0 && initializeR.compareTo(q) > 0);
         return initializeR;
     }
+
+    private BigInteger generateH() {
+        BigInteger initializeH;
+        initializeH = new BigInteger(2, random);
+        initializeH = initializeH.modPow(p.subtract(BigInteger.ONE).divide(q), p);
+        return initializeH;
+    }
+
+    private BigInteger generateV() {
+        return (h.pow(h.intValue()).pow(-1)).mod(p);
+    }
+
     /**
      * Getters. Just for satisfaction [REMOVE IF UNUSED!]
      **/
@@ -103,6 +110,18 @@ public class Schnorr {
 
     public BigInteger getA() {
         return a;
+    }
+
+    public BigInteger getS1() {
+        return s1;
+    }
+
+    public BigInteger getS2() {
+        return s2;
+    }
+
+    public BigInteger getR() {
+        return r;
     }
 
     /**
@@ -170,5 +189,23 @@ public class Schnorr {
 
     public BigInteger hashCodeMZ() {
         return BigInteger.valueOf(new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37).append(MZ).toHashCode());
+    }
+
+    /**
+     * Generating signature
+     **/
+
+    public BigInteger[] sign() {
+        BigInteger[] signature = new BigInteger[2];
+        s1 = hashCodeMX();
+        s2 = (r.add(a.multiply(s1))).mod(q);
+        signature[0] = s1;
+        signature[1] = s2;
+        return signature;
+    }
+
+    public boolean verifySignature() {
+        Z = ((h.pow(s1.intValue())).multiply(v.pow(s2.intValue()))).mod(p);
+        return s1.compareTo(hashCodeMZ()) == 0;
     }
 }
