@@ -40,15 +40,24 @@ public class Schnorr {
     private BigInteger s2;
 
     private static final Random random = new Random();
-    public Schnorr(BigInteger a) {
+    public Schnorr(BigInteger a, byte[] message) {
         q = generateQ();
-        p = geneateP();
+        p = generateP();
+        h = generateH();
+        r = generateR();
+        X = generateX();
+        M = message;
         if((a.compareTo(BigInteger.ONE)) > 0 && a.compareTo(p.subtract(BigInteger.ONE)) < 0) {
             this.a = a;
         }
         else {
             this.a = BigInteger.ZERO;
         }
+        v = generateV();
+    }
+
+    private BigInteger generateX() {
+        return h.modPow(r, p);
     }
 
     /**
@@ -59,7 +68,7 @@ public class Schnorr {
         return BigInteger.probablePrime(140, random);
     }
 
-    private BigInteger geneateP() { // According to algorithm, p > 2^512
+    private BigInteger generateP() { // According to algorithm, p > 2^512
         BigInteger initializeP;
         do {
             initializeP = BigInteger.probablePrime(512, random);
@@ -71,9 +80,9 @@ public class Schnorr {
 
     private BigInteger generateR() { // According to algorithm 0 < r < q-1
         BigInteger initializeR;
-        int lentgth = (q.subtract(BigInteger.ONE)).bitLength();
+        int length = (q.subtract(BigInteger.ONE)).bitLength();
         do {
-            initializeR = new BigInteger(lentgth, random);
+            initializeR = new BigInteger(length, random);
         } while (initializeR.compareTo(BigInteger.ZERO) < 0 && initializeR.compareTo(q) > 0);
         return initializeR;
     }
@@ -86,7 +95,8 @@ public class Schnorr {
     }
 
     private BigInteger generateV() {
-        return (h.pow(h.intValue()).pow(-1)).mod(p);
+        BigInteger halfReturn = h.modPow(a, p);
+        return halfReturn.modInverse(p); //java.lang.ArithmeticException: BigInteger not invertible. FIX THE ERROR!
     }
 
     /**
@@ -194,9 +204,9 @@ public class Schnorr {
     /**
      * Generating signature
      **/
-
     public BigInteger[] sign() {
         BigInteger[] signature = new BigInteger[2];
+        createMX();
         s1 = hashCodeMX();
         s2 = (r.add(a.multiply(s1))).mod(q);
         signature[0] = s1;
@@ -204,8 +214,11 @@ public class Schnorr {
         return signature;
     }
 
-    public boolean verifySignature() {
-        Z = ((h.pow(s1.intValue())).multiply(v.pow(s2.intValue()))).mod(p);
+    public boolean verifySignature(BigInteger[] signature, BigInteger givenH, BigInteger givenV) {
+        s1 = signature[0];
+        s2 = signature[1];
+        Z = (givenH.modPow(s2, p).multiply(givenV.modPow(s1, p)).mod(p));
+        createMZ();
         return s1.compareTo(hashCodeMZ()) == 0;
     }
 }
