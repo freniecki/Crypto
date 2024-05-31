@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
- * Tests of Schnorr digital signature generator
+ * Tests of Schnorr digital signature generator. Sometimes they pass, sometimes not
  **/
 
 public class SchnorrAlgorithmTest {

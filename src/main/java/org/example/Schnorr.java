@@ -73,7 +73,7 @@ public class Schnorr {
         do {
             initializeP = BigInteger.probablePrime(512, random);
             initializeP = (initializeP.subtract(BigInteger.ONE)).subtract(initializeP.remainder(q));
-        } while (!initializeP.isProbablePrime(5));
+        } while (!initializeP.isProbablePrime(15));
         return initializeP;
     }
 
@@ -89,14 +89,13 @@ public class Schnorr {
 
     private BigInteger generateH() {
         BigInteger initializeH;
-        initializeH = new BigInteger(2, random);
+        initializeH = new BigInteger(510, random);
         initializeH = initializeH.modPow(p.subtract(BigInteger.ONE).divide(q), p);
         return initializeH;
     }
 
     private BigInteger generateV() {
-        BigInteger halfReturn = h.modPow(a, p);
-        return halfReturn.modInverse(p); //java.lang.ArithmeticException: BigInteger not invertible. FIX THE ERROR!
+        return (h.modPow(a, p)).modInverse(p);
     }
 
     /**
