@@ -14,43 +14,56 @@ public class Main {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
 
-        if (args.length != 6) {
+        if (args.length != 5) {
             String info = """ 
                     proper usage:
-                    algorithm (DFS or Schnorr signature) encrypt/decrypt(for DFS) | create/verify(for Schnorr) text inputFileName outputFileName key(in HEX)
-                    algorithm (DFS or Schnorr signature) encrypt/decrypt(for DFS) | create/verify(for Schnorr) file inputFileName outputFileName key(in HEX)
+                    encrypt/decrypt(for DFS) text inputFileName outputFileName key(in HEX)
+                    encrypt/decrypt(for DFS) file inputFileName outputFileName key(in HEX)
+                                        
+                    create/verify(for Schnorr) text inputFileName outputFileName
+                    create/verify(for Schnorr) file inputFileName outputFileName
                     """;
             logger.info(info);
             return;
         }
 
         //Probably redundant asking for an algorithm, as only dfs en/decrypts and only schnorr creates/verifies signature. Requires review.
-        if (args[0].equalsIgnoreCase("DFS")) {
-            logger.info("DFS has been chosen");
-            if (args[1].equals("encrypt")) {
-                if (args[2].equals("text")) {
-                    runEncryptionText(args[3], args[4], args[5]);
-                } else if (args[2].equals("file")) {
-                    runEncryptionFile(args[3], args[4], args[5]);
-                } else {
-                    logger.info("text or file?");
-                }
-            } else if (args[1].equals("decrypt")) {
-                if (args[2].equals("text")) {
-                    runDecryptionText(args[3], args[4], args[5]);
-                } else if (args[2].equals("file")) {
-                    runDecryptionFile(args[3], args[4], args[5]);
-                } else {
-                    logger.info("text or file?");
-                }
+        if (args[0].equals("encrypt")) {
+            if (args[1].equals("text")) {
+                runEncryptionText(args[2], args[3], args[4]);
+            } else if (args[1].equals("file")) {
+                runEncryptionFile(args[2], args[3], args[4]);
             } else {
-                logger.info("use proper command");
+                logger.info("text or file?");
             }
-        } else if (args[0].equalsIgnoreCase("Schnorr")) {
-            logger.info("Schnorr algorithm has been chosen. Implemenration comming soon");
+        } else if (args[0].equals("decrypt")) {
+            if (args[1].equals("text")) {
+                runDecryptionText(args[2], args[3], args[4]);
+            } else if (args[1].equals("file")) {
+                runDecryptionFile(args[2], args[3], args[4]);
+            } else {
+                logger.info("text or file?");
+            }
+        } else if (args[0].equalsIgnoreCase("create")) {
+            if (args[1].equalsIgnoreCase("text")) {
+//                run generating of signature of text file
+            } else if (args[1].equalsIgnoreCase("file")) {
+//                run generating of signature of binary file
+            } else {
+                logger.info("text or file?");
+            }
+        } else if (args[0].equalsIgnoreCase("verify")) {
+            if (args[1].equalsIgnoreCase("text")) {
+//                run verification of signature located in text file
+            } else if (args[1].equalsIgnoreCase("file")) {
+//                run verification of signature located in binary file
+            } else {
+                logger.info("text or file?");
+            }
         } else {
-            logger.info("Please, read proper usage");
+            logger.info("use proper command");
         }
+
     }
 
     static void runEncryptionText(String inputFileName, String outputFileName, String key) {
