@@ -149,7 +149,6 @@ public class Main {
 
         Signature signature = (Signature) fileReader.readObject();
 
-        BigInteger pk = new BigInteger(privateKey);
         BigInteger H = new BigInteger(givenH);
         BigInteger V = new BigInteger(givenV);
         BigInteger P = new BigInteger(givenP);

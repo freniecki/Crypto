@@ -86,7 +86,7 @@ public class Schnorr {
         do {
             initializeP = BigInteger.probablePrime(512, random);
             initializeP = (initializeP.subtract(BigInteger.ONE)).subtract(initializeP.remainder(q));
-        } while (!initializeP.isProbablePrime(15));
+        } while (!initializeP.isProbablePrime(30));
         return initializeP;
     }
 
@@ -112,7 +112,7 @@ public class Schnorr {
     }
 
     /**
-     * Getters. Just for satisfaction [REMOVE IF UNUSED!]
+     * Getters. Just for satisfaction.
      **/
     public BigInteger getP() {
         return p;
@@ -147,7 +147,7 @@ public class Schnorr {
     }
 
     /**
-     * Setters [THE SAME SH]
+     * Setters
      **/
     public void setP(BigInteger p) {
         this.p = p;
@@ -155,18 +155,6 @@ public class Schnorr {
 
     public void setQ(BigInteger q) {
         this.q = q;
-    }
-
-    public void setH(BigInteger h) {
-        this.h = h;
-    }
-
-    public void setV(BigInteger v) {
-        this.v = v;
-    }
-
-    public void setA(BigInteger a) {
-        this.a = a;
     }
 
 
