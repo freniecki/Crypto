@@ -3,7 +3,6 @@ package org.example;
 import org.junit.jupiter.api.*;
 
 import java.math.BigInteger;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -17,6 +16,7 @@ public class SchnorrAlgorithmTest {
             "0000000100100011010001010110011110001001101010111100110111101111"; // Taken from previous DES tests
     byte[] message = binaryMessage.getBytes();
     Schnorr tested = new Schnorr(BigInteger.valueOf(100), message);
+
     @Test
     void testQInitializer() {
         logger.info(String.valueOf(tested.getQ()));
@@ -41,10 +41,14 @@ public class SchnorrAlgorithmTest {
     void testCreatingAndValidatingOfSignature() {
         logger.info(String.valueOf(tested.getH()));
         logger.info(String.valueOf(tested.getV()));
+        logger.info(String.valueOf(tested.getP()));
         BigInteger[] signature = tested.sign();
         BigInteger hForValidation = tested.getH();
         BigInteger vForValidation = tested.getV();
-        Assertions.assertTrue(tested.verifySignature(signature, hForValidation, vForValidation));
+        BigInteger pForValidation = tested.getP();
+        boolean isValid = tested.verifySignature(signature, hForValidation, vForValidation, pForValidation);
+        logger.info(isValid ? "Signature is valid" : "Signature is invalid");
+        Assertions.assertTrue(isValid);
     }
 
 }

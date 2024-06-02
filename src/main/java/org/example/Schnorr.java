@@ -56,6 +56,19 @@ public class Schnorr {
         v = generateV();
     }
 
+    public Schnorr(BigInteger p, BigInteger q, BigInteger h, BigInteger v, BigInteger a, BigInteger r, byte[] message) {
+        this.p = p;
+        this.q = q;
+        this.h = h;
+        this.v = v;
+        this.a = a;
+        this.r = r;
+        M = message;
+    }
+
+    public Schnorr() {
+    }
+
     private BigInteger generateX() {
         return h.modPow(r, p);
     }
@@ -213,10 +226,10 @@ public class Schnorr {
         return signature;
     }
 
-    public boolean verifySignature(BigInteger[] signature, BigInteger givenH, BigInteger givenV) {
+    public boolean verifySignature(BigInteger[] signature, BigInteger givenH, BigInteger givenV, BigInteger givenP) {
         s1 = signature[0];
         s2 = signature[1];
-        Z = (givenH.modPow(s2, p).multiply(givenV.modPow(s1, p)).mod(p));
+        Z = (givenH.modPow(s2, givenP).multiply(givenV.modPow(s1, givenP)).mod(givenP));
         createMZ();
         return s1.compareTo(hashCodeMZ()) == 0;
     }

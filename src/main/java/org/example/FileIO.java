@@ -81,4 +81,52 @@ public class FileIO {
             logger.info("Error writing data to file");
         }
     }
+
+
+    /**
+     Serialization methods
+     **/
+    public void writeObject(Object T) throws FileNotFoundException, IOException{
+        String filePath = new File(fileName).getAbsolutePath();
+        logger.info(filePath);
+
+
+        try {
+            FileOutputStream outputFile = new FileOutputStream(filePath);
+            ObjectOutputStream output = new ObjectOutputStream(outputFile);
+            output.writeObject(T);
+            output.close();
+            outputFile.close();
+            logger.info("Data written to file");
+        }
+        catch (FileNotFoundException fnfe) { // fnfe - File Not Found Exception
+            logger.info("FileNotFoundException");
+            throw fnfe;
+        }
+        catch (IOException io) {
+            logger.info("IOException");
+            throw io;
+        }
+    }
+
+    public Object readObject() throws FileNotFoundException, IOException, RuntimeException{
+        String filePath = new File(fileName).getAbsolutePath();
+        Object T = null;
+        try {
+            FileInputStream inputFile = new FileInputStream(filePath);
+            ObjectInputStream input = new ObjectInputStream(inputFile);
+            T = input.readObject();
+        }
+        catch (FileNotFoundException fnfe) {
+            logger.info("FileNotFoundExceprtion");
+            throw fnfe;
+        }
+        catch (IOException io) {
+            logger.info("IOException");
+            throw io;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return T;
+    }
 }

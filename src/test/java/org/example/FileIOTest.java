@@ -3,6 +3,10 @@ package org.example;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.math.BigInteger;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileIOTest {
@@ -34,6 +38,29 @@ class FileIOTest {
             System.out.println(Helper.byteToBinaryString(b));
         }
         System.out.println("---------");
+    }
+
+    @Test
+    void testSerializationOfAnObjectWrite() {
+        Signature signature = new Signature(BigInteger.ONE, BigInteger.TWO);
+        Assertions.assertDoesNotThrow(() -> FileIO.getFile("oaoammm.txt").writeObject(signature));
+    }
+
+    @Test
+    void testSerializationOfAnObjectRead() throws FileNotFoundException, IOException, RuntimeException {
+        Signature signature = null;
+        signature = (Signature) FileIO.getFile("oaoammm.txt").readObject();
+        System.out.println(signature.getS1().toString());
+        System.out.println(signature.getS2().toString());
+        Assertions.assertTrue(signature.getS1().compareTo(BigInteger.ONE) == 0);
+        Assertions.assertTrue(signature.getS2().compareTo(BigInteger.TWO) == 0);
+    }
+
+
+    @Test
+    void testSerializationOfAnObjectReadNonExistentFile() {
+        Signature signature = null;
+        Assertions.assertThrows(FileNotFoundException.class, () -> FileIO.getFile("nonexistentfile.txt").readObject());
     }
 }
 

@@ -1,6 +1,8 @@
 package org.example;
 
-import java.nio.charset.StandardCharsets;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -10,7 +12,7 @@ public class Main {
 
     static DES des = new DES();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ConsoleHandler consoleHandler = new ConsoleHandler();
         logger.addHandler(consoleHandler);
 
@@ -20,8 +22,8 @@ public class Main {
                     encrypt/decrypt(for DFS) text inputFileName outputFileName key(in HEX)
                     encrypt/decrypt(for DFS) file inputFileName outputFileName key(in HEX)
                                         
-                    create/verify(for Schnorr) text inputFileName outputFileName
-                    create/verify(for Schnorr) file inputFileName outputFileName
+                    create/verify(for Schnorr) text inputFileName outputFileName privateKey
+                    create/verify(for Schnorr) file inputFileName outputFileName privateKey
                     """;
             logger.info(info);
             return;
@@ -46,16 +48,21 @@ public class Main {
             }
         } else if (args[0].equalsIgnoreCase("create")) {
             if (args[1].equalsIgnoreCase("text")) {
+                logger.warning("Do NOT expose your private key in any occasion!");
 //                run generating of signature of text file
+                runSignCreationOfAFile(args[2], args[3], args[4]);
             } else if (args[1].equalsIgnoreCase("file")) {
+                logger.warning("Do NOT expose your private key in any occasion!");
 //                run generating of signature of binary file
             } else {
                 logger.info("text or file?");
             }
         } else if (args[0].equalsIgnoreCase("verify")) {
             if (args[1].equalsIgnoreCase("text")) {
+                logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
 //                run verification of signature located in text file
             } else if (args[1].equalsIgnoreCase("file")) {
+                logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
 //                run verification of signature located in binary file
             } else {
                 logger.info("text or file?");
@@ -65,6 +72,10 @@ public class Main {
         }
 
     }
+
+    /**
+     DES run functions
+     **/
 
     static void runEncryptionText(String inputFileName, String outputFileName, String key) {
         FileIO fileReader = FileIO.getFile(inputFileName);
@@ -113,4 +124,45 @@ public class Main {
         FileIO fileWriter = FileIO.getFile(outputFileName);
         fileWriter.writeBytesToFile(decrypted);
     }
+
+    /**
+     Schnorr digital signature run functions
+    **/
+
+    static void runSignCreationOfAFile (String inputFileName, String outputFileName, String privateKey) throws FileNotFoundException, IOException, RuntimeException {
+        FileIO fileReader = FileIO.getFile(inputFileName);
+        byte[] message = fileReader.readBytesFromFile();
+
+        BigInteger pk = new BigInteger(privateKey); // pk stands for Private Key
+
+        Schnorr signer = new Schnorr(pk, message);
+
+        BigInteger[] signature = signer.sign();
+
+        Signature signature1 = new Signature(signature[0], signature[1]);
+
+        FileIO.getFile(outputFileName).writeObject(signature1);
+    }
+
+    static void runVerification (String locationOfSignature, String privateKey, String givenH, String givenV, String givenP) throws FileNotFoundException, IOException, RuntimeException {
+        FileIO fileReader = FileIO.getFile(locationOfSignature);
+
+        Signature signature = (Signature) fileReader.readObject();
+
+        BigInteger pk = new BigInteger(privateKey);
+        BigInteger H = new BigInteger(givenH);
+        BigInteger V = new BigInteger(givenV);
+        BigInteger P = new BigInteger(givenP);
+
+        BigInteger[] signatureForValidation = new BigInteger[2];
+        signatureForValidation[0] = signature.getS1();
+        signatureForValidation[1] = signature.getS2();
+
+        Schnorr verifier = new Schnorr();
+
+        boolean isValid = verifier.verifySignature(signatureForValidation, H, V, P);
+        logger.info(isValid ? "Signature is valid" : "Signature is invalid");
+
+    }
+
 }
