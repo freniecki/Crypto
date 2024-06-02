@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.BitSet;
+import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
@@ -22,8 +23,8 @@ public class Main {
                     encrypt/decrypt(for DFS) text inputFileName outputFileName key(in HEX)
                     encrypt/decrypt(for DFS) file inputFileName outputFileName key(in HEX)
                                         
-                    create/verify(for Schnorr) text inputFileName outputFileName privateKey
-                    create/verify(for Schnorr) file inputFileName outputFileName privateKey
+                    create/verify(for Schnorr) text inputFileName outputFileName true/false
+                    create/verify(for Schnorr) file inputFileName outputFileName true/false
                     """;
             logger.info(info);
             return;
@@ -54,6 +55,7 @@ public class Main {
             } else if (args[1].equalsIgnoreCase("file")) {
                 logger.warning("Do NOT expose your private key in any occasion!");
 //                run generating of signature of binary file
+                runSignCreationOfAFile(args[2], args[3], args[4]);
             } else {
                 logger.info("text or file?");
             }
@@ -61,6 +63,7 @@ public class Main {
             if (args[1].equalsIgnoreCase("text")) {
                 logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
 //                run verification of signature located in text file
+
             } else if (args[1].equalsIgnoreCase("file")) {
                 logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
 //                run verification of signature located in binary file
@@ -129,13 +132,16 @@ public class Main {
      Schnorr digital signature run functions
     **/
 
-    static void runSignCreationOfAFile (String inputFileName, String outputFileName, String privateKey) throws FileNotFoundException, IOException, RuntimeException {
+    static void runSignCreationOfAFile (String inputFileName, String outputFileName, String hasKeys) throws FileNotFoundException, IOException, RuntimeException {
         FileIO fileReader = FileIO.getFile(inputFileName);
         byte[] message = fileReader.readBytesFromFile();
+        BigInteger privateKey = BigInteger.ZERO;
+        logger.warning("Please, provide your private key [do not expose it to third persons]:");
+        Scanner input = new Scanner(System.in);
+        privateKey = input.nextBigInteger();
+        logger.warning("Private key:" + privateKey.toString());
 
-        BigInteger pk = new BigInteger(privateKey); // pk stands for Private Key
-
-        Schnorr signer = new Schnorr(pk, message);
+        Schnorr signer = new Schnorr(privateKey, message);
 
         BigInteger[] signature = signer.sign();
 
