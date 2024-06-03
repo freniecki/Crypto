@@ -62,6 +62,7 @@ public class Main {
         } else if (args[0].equalsIgnoreCase("verify")) {
             if (args[1].equalsIgnoreCase("text")) {
                 logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
+                runVerification(args[2], args[3], args[4]);
 //                run verification of signature located in text file
 
             } else if (args[1].equalsIgnoreCase("file")) {
@@ -150,9 +151,11 @@ public class Main {
         FileIO.getFile(outputFileName).writeObject(signature1);
     }
 
-    static void runVerification (String locationOfSignature, String privateKey, String givenH, String givenV, String givenP) throws FileNotFoundException, IOException, RuntimeException {
+    static void runVerification (String locationOfSignature, String privateKey, String userHasTheKey) throws FileNotFoundException, IOException, RuntimeException {
         FileIO fileReader = FileIO.getFile(locationOfSignature);
-
+        String givenP = "";
+        String givenH = "";
+        String givenV = "";
         Signature signature = (Signature) fileReader.readObject();
 
         BigInteger H = new BigInteger(givenH);
