@@ -30,7 +30,7 @@ public class Main {
             return;
         }
 
-        //Probably redundant asking for an algorithm, as only dfs en/decrypts and only schnorr creates/verifies signature. Requires review.
+
         if (args[0].equals("encrypt")) {
             if (args[1].equals("text")) {
                 runEncryptionText(args[2], args[3], args[4]);
@@ -49,11 +49,9 @@ public class Main {
             }
         } else if (args[0].equalsIgnoreCase("create")) {
             if (args[1].equalsIgnoreCase("text")) {
-                logger.warning("Do NOT expose your private key in any occasion!");
 //                run generating of signature of text file
                 runSignCreationOfAFile(args[2], args[3], args[4]);
             } else if (args[1].equalsIgnoreCase("file")) {
-                logger.warning("Do NOT expose your private key in any occasion!");
 //                run generating of signature of binary file
                 runSignCreationOfAFile(args[2], args[3], args[4]);
             } else {
@@ -61,12 +59,10 @@ public class Main {
             }
         } else if (args[0].equalsIgnoreCase("verify")) {
             if (args[1].equalsIgnoreCase("text")) {
-                logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
-                runVerification(args[2], args[3], args[4]);
+                runVerification(args[2]);
 //                run verification of signature located in text file
 
             } else if (args[1].equalsIgnoreCase("file")) {
-                logger.warning("ATTENTION! Do NOT expose your private key in any occasion!");
 //                run verification of signature located in binary file
             } else {
                 logger.info("text or file?");
@@ -130,37 +126,43 @@ public class Main {
     }
 
     /**
-     Schnorr digital signature run functions
-    **/
-
+     Schnorr digital signature run functions.
+     Function 1: Create and write a signature to a concrete file.
+     */
     static void runSignCreationOfAFile (String inputFileName, String outputFileName, String hasKeys) throws FileNotFoundException, IOException, RuntimeException {
         FileIO fileReader = FileIO.getFile(inputFileName);
         byte[] message = fileReader.readBytesFromFile();
-        BigInteger privateKey = BigInteger.ZERO;
+        BigInteger privateKey;
         logger.warning("Please, provide your private key [do not expose it to third persons]:");
         Scanner input = new Scanner(System.in);
         privateKey = input.nextBigInteger();
+        logger.warning("Do NOT expose your private key in any occasion!");
         logger.warning("Private key:" + privateKey.toString());
 
         Schnorr signer = new Schnorr(privateKey, message);
 
         BigInteger[] signature = signer.sign();
+        BigInteger h = signer.getH();
+        BigInteger v = signer.getV();
+        BigInteger p = signer.getP();
 
-        Signature signature1 = new Signature(signature[0], signature[1]);
+        Signature signature1 = new Signature(signature[0], signature[1], h, v, p);
 
         FileIO.getFile(outputFileName).writeObject(signature1);
     }
 
-    static void runVerification (String locationOfSignature, String privateKey, String userHasTheKey) throws FileNotFoundException, IOException, RuntimeException {
+    /**
+     Function 2: Read the signature and its parameters of a public key.
+     Then, verify the signature.
+     */
+    static void runVerification (String locationOfSignature) throws IOException, RuntimeException {
         FileIO fileReader = FileIO.getFile(locationOfSignature);
-        String givenP = "";
-        String givenH = "";
-        String givenV = "";
         Signature signature = (Signature) fileReader.readObject();
 
-        BigInteger H = new BigInteger(givenH);
-        BigInteger V = new BigInteger(givenV);
-        BigInteger P = new BigInteger(givenP);
+
+        BigInteger h = signature.getH();
+        BigInteger v = signature.getV();
+        BigInteger p = signature.getP();
 
         BigInteger[] signatureForValidation = new BigInteger[2];
         signatureForValidation[0] = signature.getS1();
@@ -168,7 +170,7 @@ public class Main {
 
         Schnorr verifier = new Schnorr();
 
-        boolean isValid = verifier.verifySignature(signatureForValidation, H, V, P);
+        boolean isValid = verifier.verifySignature(signatureForValidation, h, v, p);
         logger.info(isValid ? "Signature is valid" : "Signature is invalid");
 
     }

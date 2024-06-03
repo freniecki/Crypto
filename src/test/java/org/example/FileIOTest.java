@@ -42,20 +42,29 @@ class FileIOTest {
 
     @Test
     void testSerializationOfAnObjectWrite() {
-        Signature signature = new Signature(BigInteger.ONE, BigInteger.TWO);
+        BigInteger temp = new BigInteger("3");
+        BigInteger temp1 = new BigInteger("12");
+        Signature signature = new Signature(BigInteger.ONE, BigInteger.TWO, BigInteger.TEN, temp, temp1);
         Assertions.assertDoesNotThrow(() -> FileIO.getFile("oaoammm.txt").writeObject(signature));
     }
 
     @Test
     void testSerializationOfAnObjectRead() throws FileNotFoundException, IOException, RuntimeException {
+        BigInteger temp = new BigInteger("3");
+        BigInteger temp1 = new BigInteger("12");
         Signature signature = null;
         signature = (Signature) FileIO.getFile("oaoammm.txt").readObject();
         System.out.println(signature.getS1().toString());
         System.out.println(signature.getS2().toString());
-        Assertions.assertTrue(signature.getS1().compareTo(BigInteger.ONE) == 0);
-        Assertions.assertTrue(signature.getS2().compareTo(BigInteger.TWO) == 0);
+        System.out.println(signature.getH().toString());
+        System.out.println(signature.getV().toString());
+        System.out.println(signature.getP().toString());
+        assertEquals(0, signature.getS1().compareTo(BigInteger.ONE));
+        assertEquals(0, signature.getS2().compareTo(BigInteger.TWO));
+        assertEquals(0, signature.getH().compareTo(BigInteger.TEN));
+        assertEquals(0, signature.getV().compareTo(temp));
+        assertEquals(0, signature.getP().compareTo(temp1));
     }
-
 
     @Test
     void testSerializationOfAnObjectReadNonExistentFile() {
