@@ -93,10 +93,44 @@ public class Schnorr {
                 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359,
                 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443,
                 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541};
-        for (int i = 0; i < 5; i++) {
 
+        if (observedNumber.compareTo(BigInteger.ONE) < 0 ) {
+            return false;
+        }
+
+        for (int number : primeNumbers) {
+            if (observedNumber.compareTo(BigInteger.valueOf(number)) == 0) {
+                return true;
+            }
+            if (observedNumber.mod(BigInteger.valueOf(number)).compareTo(BigInteger.ZERO) == 0) {
+                return false;
+            }
+        }
+
+        BigInteger d = observedNumber.subtract(BigInteger.ONE);
+        int s = 0;
+        while (d.mod(BigInteger.TWO).compareTo(BigInteger.TWO) == 0) {
+            d = d.divide(BigInteger.TWO);
+            s++;
+        }
+
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < primeNumbers.length - 1; j++) {
+                BigInteger a = BigInteger.valueOf(primeNumbers[j]);
+                if (!millerRabinPass(a, s, d, observedNumber)) return false;
+            }
         }
         return true;
+    }
+
+    private boolean millerRabinPass(BigInteger a, int s, BigInteger d, BigInteger observedNumber) {
+        BigInteger aPowD = a.modPow(d, observedNumber);
+        if (aPowD.equals(BigInteger.ONE)) return true;
+        for (int r = 0; r < s; r++) {
+            if (aPowD.equals(observedNumber.subtract(BigInteger.ONE))) return true;
+            aPowD = aPowD.modPow(BigInteger.TWO, observedNumber);
+        }
+        return false;
     }
 
     private BigInteger generateP() { // According to algorithm, p > 2^512
