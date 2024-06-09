@@ -125,7 +125,7 @@ public class FileIO {
             logger.info("IOException");
             throw io;
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            logger.severe("Class not found");
         }
         return T;
     }

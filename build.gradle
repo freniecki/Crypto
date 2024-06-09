@@ -28,10 +28,13 @@ test {
 jar {
     manifest {
         attributes "Main-Class": "org.example.App"
-
     }
 
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+tasks.jar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
