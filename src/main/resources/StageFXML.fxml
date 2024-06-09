@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" spacing="10" padding="10">
-    <!-- Komponent do wyboru pliku -->
-    <Label text="Wybierz plik:" />
-    <Button text="Przeglądaj..." onAction="#handleBrowseButtonAction" />
-
-    <!-- Komponent do wyświetlania tekstu -->
-    <Label text="Wyświetl tekst:" />
-    <TextArea fx:id="displayTextArea" editable="false" prefRowCount="10" prefColumnCount="20" />
-
-    <!-- Komponent do wprowadzania tekstu -->
-    <Label text="Wprowadź tekst:" />
-    <TextField fx:id="inputTextField" />
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.MyController">
+   <AnchorPane prefHeight="480.0" prefWidth="720.0">
+      <Button layoutX="125.0" layoutY="294.0" mnemonicParsing="false" onAction="#handleReadPlainFile" text="Choose file" />
+      <TextArea fx:id="plainText" layoutX="18.0" layoutY="77.0" prefHeight="200.0" prefWidth="288.0" />
+      <TextArea fx:id="signedText" layoutX="410.0" layoutY="77.0" prefHeight="200.0" prefWidth="288.0" />
+      <Button layoutX="519.0" layoutY="294.0" mnemonicParsing="false" onAction="#handleReadSignedFile" text="Choose file" />
+      <Button layoutX="340.0" layoutY="126.0" mnemonicParsing="false" onAction="#handleSignButtonAction" text="Sign" />
+      <Button layoutX="337.0" layoutY="176.0" mnemonicParsing="false" onAction="#handleVerifyButtonAction" text="Verify" />
+      <Label layoutX="138.0" layoutY="54.0" text="Plain text" />
+      <Label layoutX="524.0" layoutY="54.0" text="Signed text" />
+      <TextField fx:id="privateKey" alignment="CENTER" layoutX="88.0" layoutY="348.0" promptText="Provide private key" />
+      <Label layoutX="44.0" layoutY="389.0" text="WARNING! Do NOT expose your private key!" />
+      <Button layoutX="503.0" layoutY="335.0" mnemonicParsing="false" onAction="#handleDeserialize" text="Choose signature" />
+      <Label layoutX="311.0" layoutY="14.0" text="Verification result: " />
+      <TextField fx:id="result" alignment="CENTER" editable="false" layoutX="330.0" layoutY="42.0" prefHeight="25.0" prefWidth="60.0" promptText="Result" />
+   </AnchorPane>
 </VBox>

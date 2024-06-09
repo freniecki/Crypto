@@ -34,7 +34,7 @@ public class MyController {
         if (file != null) {
             try {
                 String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-                displayTextArea.setText(content);
+                plainText.setText(content);
             } catch (IOException e) {
                 e.printStackTrace();
             }

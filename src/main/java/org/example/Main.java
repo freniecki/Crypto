@@ -1,5 +1,10 @@
 package org.example;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -8,12 +13,13 @@ import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
+
 public class Main {
     static Logger logger = Logger.getLogger(Main.class.getName());
 
     static DES des = new DES();
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
     }
 

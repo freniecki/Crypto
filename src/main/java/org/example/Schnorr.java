@@ -114,7 +114,7 @@ public class Schnorr {
             s++;
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 5; i++) {
             for (int j = 0; j < primeNumbers.length - 1; j++) {
                 BigInteger a = BigInteger.valueOf(primeNumbers[j]);
                 if (!millerRabinPass(a, s, d, observedNumber)) return false;
@@ -240,6 +240,9 @@ public class Schnorr {
         MZ = concatenation(M, Z.toByteArray());
     }
 
+    public Schnorr(byte[] m) {
+        M = m;
+    }
 
     /**
      * Hash-functions
