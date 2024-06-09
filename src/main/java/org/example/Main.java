@@ -13,63 +13,7 @@ public class Main {
 
     static DES des = new DES();
 
-    public static void main(String[] args) throws IOException {
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        logger.addHandler(consoleHandler);
-
-        if (args.length != 5) {
-            String info = """ 
-                    proper usage:
-                    encrypt/decrypt(for DFS) text inputFileName outputFileName key(in HEX)
-                    encrypt/decrypt(for DFS) file inputFileName outputFileName key(in HEX)
-                                        
-                    create/verify(for Schnorr) text inputFileName outputFileName true/false
-                    create/verify(for Schnorr) file inputFileName outputFileName true/false
-                    """;
-            logger.info(info);
-            return;
-        }
-
-
-        if (args[0].equals("encrypt")) {
-            if (args[1].equals("text")) {
-                runEncryptionText(args[2], args[3], args[4]);
-            } else if (args[1].equals("file")) {
-                runEncryptionFile(args[2], args[3], args[4]);
-            } else {
-                logger.info("text or file?");
-            }
-        } else if (args[0].equals("decrypt")) {
-            if (args[1].equals("text")) {
-                runDecryptionText(args[2], args[3], args[4]);
-            } else if (args[1].equals("file")) {
-                runDecryptionFile(args[2], args[3], args[4]);
-            } else {
-                logger.info("text or file?");
-            }
-        } else if (args[0].equalsIgnoreCase("create")) {
-            if (args[1].equalsIgnoreCase("text")) {
-//                run generating of signature of text file
-                runSignCreationOfAFile(args[2], args[3], args[4]);
-            } else if (args[1].equalsIgnoreCase("file")) {
-//                run generating of signature of binary file
-                runSignCreationOfAFile(args[2], args[3], args[4]);
-            } else {
-                logger.info("text or file?");
-            }
-        } else if (args[0].equalsIgnoreCase("verify")) {
-            if (args[1].equalsIgnoreCase("text")) {
-                runVerification(args[2]);
-//                run verification of signature located in text file
-
-            } else if (args[1].equalsIgnoreCase("file")) {
-//                run verification of signature located in binary file
-            } else {
-                logger.info("text or file?");
-            }
-        } else {
-            logger.info("use proper command");
-        }
+    public static void main(String args[]) {
 
     }
 
