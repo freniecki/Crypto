@@ -22,6 +22,8 @@ public class MyController {
     @FXML
     private TextArea plainText;
 
+    private byte[] signedBytes;
+
     @FXML
     private TextArea signedText;
 
@@ -44,8 +46,8 @@ public class MyController {
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file != null) {
             try {
-                String content = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-                plainText.setText(content);
+                signedBytes = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+                plainText.setText(new String(signedBytes.toString()));
             } catch (IOException e) {
                 logger.severe("cant read file");
             }
@@ -104,7 +106,7 @@ public class MyController {
 
         FileIO.getFile("signature").writeObject(result);
 
-        FileIO.getFile("text").writeBytesAsASCII(plainText.getText().getBytes());
+        FileIO.getFile("text").writeBytesToFile(signedBytes);
     }
 
     @FXML
